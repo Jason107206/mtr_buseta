@@ -164,7 +164,7 @@ $(() => {
   get_stop_data();
 
   setTimeout(() => {
-    $('#init').hide();
+    $('#init').remove();
     $('.query').show();
 
     stops_out = stops_data.filter((x) => { return x[0] === $('#route').val() && x[1] === 'O'; });
