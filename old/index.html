@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>MTR ETA Checker</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+  
+
+<body>
+  <table>
+    <tr>
+      <td>Route:</td>
+      <td><input id="route" type="text" value="K73"></td>
+      <td><button id="submit">Submit</button></td>
+      <td><button id="reset">Reset</button></td>
+      <td><input id="show_scheduled" type="checkbox" checked><label for="show_scheduled">Scheduled Departures</label></td>
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <td>
+        <label for="auto_refresh">Refresh automatically: </label>
+        <select id="auto_refresh">
+          <option value="0">Disabled</option>
+          <option value="5">5 seconds</option>
+          <option value="10" selected>10 seconds</option>
+          <option value="20">20 seconds</option>
+          <option value="30">30 seconds</option>
+          <option value="60">60 seconds</option>
+        </select>
+      </td>
+    </tr>
+  </table>
+  <div id="result"></div>
+  
+  <script src="script.js"></script>
+</body>
+
+</html>

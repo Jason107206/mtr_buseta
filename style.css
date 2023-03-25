@@ -1,0 +1,53 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  margin: 0;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+table {
+  width: 84vw;
+  margin-bottom: 16px;
+  border-collapse: collapse;
+}
+
+tr.scheduled {
+  background-color: #f5f5f5;
+}
+
+tr.arriving {
+  background-color: #ffffcc;
+}
+
+td {
+  width: 28vw;
+  padding: 8px;
+  border: 1px solid #dddddd;
+}
+
+input, label {
+  vertical-align: middle;
+}
+
+.query, .result {
+  margin: 16px;
+  padding: 16px;
+  border: 0.5px solid #DCDCDC;
+  border-radius: 16px;
+  box-shadow: 2px 2px #F5F5F5;
+  box-sizing: border-box;
+}
+
+.query > div:not(:last-child) {
+  margin-bottom: 16px;
+}
+
+.result > p {
+  margin-top: 0;
+}

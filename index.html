@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>MTR ETA Checker</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+  
+
+<body>
+  <div class="query">
+    <h3>MTR Bus Arrival Time Checker</h3>
+    <div>
+      <label for="route">Route:&nbsp;</label>
+      <input id="route" type="text" value="K73">
+      <button id="submit">Submit</button>
+      <button id="reset">Reset</button>
+    </div>
+    <div>
+      <input id="show_scheduled" type="checkbox" checked>
+      <label for="show_scheduled">Scheduled Departures</label>
+    </div>
+    <div>
+      <label for="auto_refresh">Refresh automatically: </label>
+      <select id="auto_refresh">
+        <option value="0">Disabled</option>
+        <option value="5">5 seconds</option>
+        <option value="10" selected>10 seconds</option>
+        <option value="20">20 seconds</option>
+        <option value="30">30 seconds</option>
+        <option value="60">60 seconds</option>
+      </select>
+    </div>
+  </div>
+  <div id="result"></div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
