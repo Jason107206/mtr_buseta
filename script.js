@@ -18,6 +18,13 @@ function auto_refresh(timeout) {
   timer = setTimeout(() => get_eta_data(), timeout);
 }
 
+function clear_refresh() {
+  if (timer != null) {
+    clearTimeout(timer);
+    timer = null;
+  }
+}
+
 function get_stop_data() {
   const url = 'mtr_bus_stops.csv';
 
@@ -66,26 +73,29 @@ function refresh_output() {
       } else {
         eta = secs + 's';
       }
-    }
+
+      row = document.createElement('tr');
       
-    row = document.createElement('tr');
-    
-    if (x['isScheduled'] == '1') {
-      row.setAttribute('class', 'scheduled');
-    } else if (secs < 59) {
-      row.setAttribute('class', 'arriving');
-    } else {
-      row.setAttribute('class', 'normal');
+      if (x['isScheduled'] == '1') {
+        row.setAttribute('class', 'scheduled');
+      } else if (secs < 59) {
+        row.setAttribute('class', 'arriving');
+      } else {
+        row.setAttribute('class', 'normal');
+      }
+      
+      create('td', x['busId'], row);
+      create('td', time.toLocaleTimeString('en-GB'), row);
+      create('td', eta, row);
+      
+      return row;
     }
-    
-    create('td', x['busId'], row);
-    create('td', time.toLocaleTimeString('en-GB'), row);
-    create('td', eta, row);
-    
-    return row;
   }
 
   last_update = new Date(eta_data['routeStatusTime']);
+
+  create('h3', 'Route ' + $('#route').val(), $('#result'));
+  
   create('p', 'Data updated at: ' + last_update.toLocaleTimeString('en-GB'), $('#result'));
   
   stops = stops_data.filter((x) => { return x[0] === $('#route').val(); })
@@ -118,7 +128,9 @@ function refresh_output() {
     }
     
     if (table.rows.length == 1) {
-      create('td', 'No departure', table);
+      row = document.createElement('tr');
+      table.append(row);
+      create('td', 'No departure', row, ['colspan', '3']);
     }
   };
   
@@ -143,10 +155,7 @@ $(() => {
 });
 
 $('#route').on('input', () => {
-  if (timer != null) {
-    clearTimeout(timer);
-    timer = null;
-  }
+  clear_refresh();
   
   if ($('#route').val() == '') {
     $('#submit').prop('disabled', 1);
@@ -156,16 +165,16 @@ $('#route').on('input', () => {
 });
 
 $('#submit').click(() => {
-  if (timer != null) {
-    clearTimeout(timer);
-    timer = null;
-  }
-  
+  clear_refresh();
+  $('#route').val($('#route').val().toUpperCase());
   get_eta_data();
 });
 
 $('#reset').click(() => {
+  clear_refresh();
+  
   $('#route').val('');
+  $('#submit').prop('disabled', 1);
 });
 
 $('#show_scheduled').click(() => {

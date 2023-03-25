@@ -6,15 +6,24 @@ html, body {
 
 body {
   margin: 0;
+  box-sizing: border-box;
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
 
+h3 {
+  margin-top: 16px;
+}
+
 table {
-  width: 84vw;
-  margin-bottom: 16px;
+  width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
+}
+
+table:not(:last-child) {
+  margin-bottom: 16px;
 }
 
 tr.scheduled {
@@ -26,7 +35,6 @@ tr.arriving {
 }
 
 td {
-  width: 28vw;
   padding: 8px;
   border: 1px solid #dddddd;
 }
