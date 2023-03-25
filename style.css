@@ -27,6 +27,8 @@ h3 {
 }
 
 #direction {
+  width: fit-content;
+  max-width: 35vw;
   margin-right: 4px;
 }
 
