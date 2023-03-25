@@ -1,19 +1,75 @@
 html, body {
   height: 100%;
   width: 100%;
-  font-family: 'Roboto', sans-serif;
 }
 
 body {
   margin: 0;
-  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
 
+body > div {
+  height: fit-content;
+  min-height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+body > div > div:not(:last-child) {
+  margin-bottom: 16px;
+}
+
 h3 {
   margin-top: 16px;
+}
+
+#direction {
+  margin-right: 4px;
+}
+
+button > * {
+  vertical-align: middle;
+}
+
+button, select {
+  padding: 0.25rem;
+}
+
+span.material-symbols-outlined {
+  margin-right: 8px;
+}
+
+label > span.material-symbols-outlined {
+  vertical-align: middle;
+}
+
+h3 > span.material-symbols-outlined {
+  vertical-align: bottom;
+}
+
+button > span.material-symbols-outlined {
+  font-size: 1.0rem;
+}
+
+#init, .query, .result {
+  padding: 16px;
+  border: 0.5px solid #DCDCDC;
+  border-radius: 16px;
+  box-shadow: 2px 2px #F5F5F5;
+  box-sizing: border-box;
+}
+
+.query > div:not(:last-child) {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.05rem;
+}
+
+.result > p {
+  margin-top: 0;
 }
 
 table {
@@ -37,25 +93,4 @@ tr.arriving {
 td {
   padding: 8px;
   border: 1px solid #dddddd;
-}
-
-input, label {
-  vertical-align: middle;
-}
-
-.query, .result {
-  margin: 16px;
-  padding: 16px;
-  border: 0.5px solid #DCDCDC;
-  border-radius: 16px;
-  box-shadow: 2px 2px #F5F5F5;
-  box-sizing: border-box;
-}
-
-.query > div:not(:last-child) {
-  margin-bottom: 16px;
-}
-
-.result > p {
-  margin-top: 0;
 }
