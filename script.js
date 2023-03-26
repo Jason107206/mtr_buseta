@@ -113,19 +113,20 @@ function refresh_output(stops) {
     table.append(row);
     create('td', i + '. ' + stops[i][7], row, ['colspan', '3']);
     
-    stop_eta = eta_data['busStop'];
+    route_eta = eta_data['busStop'];
+    stop_eta = route_eta.filter((x) => { return x['busStopId'] === stops[i][3] });
     
     if (stop_eta.length > 0) {
-      stop_eta = stop_eta.filter((x) => { return stops[i][3] === x['busStopId'] });
+      stop_eta = stop_eta[0]['bus'];
       
-      for (let x of stop_eta[0]['bus']) {
+      for (let i = 0; i < stop_eta.length; i++) {
         let condition = [
           $('#show_scheduled').is(':checked'),
-          x['isScheduled'] == '0'
+          stop_eta[i]['isScheduled'] == '0'
         ];
           
         if (condition.some(x => x)) {
-          secs = parseInt(x['departureTimeInSecond']);
+          secs = parseInt(stop_eta[i]['departureTimeInSecond']);
             
           if (secs > 0) {
             time = new Date(last_update);
@@ -140,7 +141,7 @@ function refresh_output(stops) {
             row = document.createElement('tr');
             table.append(row);
             
-            if (x['isScheduled'] == '1') {
+            if (stop_eta[i]['isScheduled'] == '1') {
               row.setAttribute('class', 'scheduled');
             } else if (secs < 59) {
               row.setAttribute('class', 'arriving');
@@ -148,7 +149,7 @@ function refresh_output(stops) {
               row.setAttribute('class', 'normal');
             }
             
-            create('td', x['busId'], row);
+            create('td', stop_eta[i]['busId'], row);
             create('td', time.toLocaleTimeString('en-GB'), row);
             create('td', eta, row);
           }
@@ -169,6 +170,7 @@ function refresh_output(stops) {
   }
 
   if ($('#show_scheduled').is(':disabled')) {
+    $('.card_eta').show();
     $('#show_scheduled').prop('disabled', 0);
     $('#refresh').prop('disabled', 0);
     $('#auto_refresh').prop('disabled', 0);
@@ -176,16 +178,15 @@ function refresh_output(stops) {
 }
 
 $(() => {
-  $('.screen > div:not(#init)').hide();
-
+  $('.screen > div:not(#card_init)').hide();
   $('#show_scheduled').prop('disabled', 1);
   $('#refresh').prop('disabled', 1);
   $('#auto_refresh').prop('disabled', 1);
   get_stop_data();
 
   setTimeout(() => {
-    $('#init').remove();
-    $('.screen > div').show();
+    $('#card_init').remove();
+    $('.card_search').show();
     refresh_dir();
   }, 900)
 });
