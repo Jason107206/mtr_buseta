@@ -14,11 +14,7 @@ function create(type, text, append_to, ...attributes){
 
 function auto_refresh(timeout) {
   timer = setTimeout(() => {
-    if ($('#direction').val() === 'O') {
-      refresh_output(stops_out);
-    } else {
-      refresh_output(stops_in);
-    }
+    get_eta_data();
   }, timeout);
 }
 
