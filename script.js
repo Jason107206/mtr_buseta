@@ -97,7 +97,7 @@ function refresh_dir() {
     term_in = stops_in[stops_in.length - 1];
     opt_html += '<option value="I">' + term_in[7] + '</option>';
   }
-
+  
   $('#direction').html(opt_html);
   get_eta_data();
 }
@@ -172,9 +172,7 @@ function refresh_output(stops) {
     auto_refresh(refresh_second * 1000);
   }
 
-  if ($('#result').is(':hidden')) {
-    $('#result').addClass('result');
-    $('#result').show();
+  if ($('#show_scheduled').is(':disabled')) {
     $('#show_scheduled').prop('disabled', 0);
     $('#refresh').prop('disabled', 0);
     $('#auto_refresh').prop('disabled', 0);
