@@ -73,12 +73,41 @@ function get_eta_data() {
     });
 }
 
+function refresh_dir() {
+  stops_out = stops_data.filter((x) => {
+    return x[0] === $('#route').val() && x[1] === 'O';
+  });
+
+  term_out = stops_out[stops_out.length - 1];
+  opt_html = '<option value="O">' + term_out[7] + '</option>';
+
+  stop_next_index = stops_data.indexOf(term_out) + 1;
+  stop_next = stops_data[stop_next_index];
+
+  let condition = [
+    stop_next[0] === $('#route').val(),
+    stop_next[1] === 'I'
+  ];
+  
+  if (condition.every(x => x)) {
+    stops_in = stops_data.filter((x) => {
+      return x[0] === $('#route').val() && x[1] === 'I';
+    });
+
+    term_in = stops_in[stops_in.length - 1];
+    opt_html += '<option value="I">' + term_in[7] + '</option>';
+  }
+
+  $('#direction').html(opt_html);
+  get_eta_data();
+}
+
 function refresh_output(stops) {
-  $('#result').text('');
   last_update = new Date(eta_data['routeStatusTime']);
   
-  create('h3', 'Route ' + $('#route').val() + ' - ' + stops[stops.length - 1][7], $('#result'));
-  create('p', 'Data updated at: ' + last_update.toLocaleTimeString('en-GB'), $('#result'));
+  $('#route_title').text('Route ' + $('#route').val() + ' - ' + stops[stops.length - 1][7]);
+  $('#last_update').text('Data updated at: ' + last_update.toLocaleTimeString('en-GB'));
+  $('#result').text('');
   
   for (let i = 0; i < stops.length; i++) {
     table = document.createElement('table');
@@ -88,46 +117,44 @@ function refresh_output(stops) {
     table.append(row);
     create('td', i + '. ' + stops[i][7], row, ['colspan', '3']);
     
-    if (eta_data['busStop'].length > 0) {
-      stop_eta = eta_data['busStop'];
+    stop_eta = eta_data['busStop'];
+    
+    if (stop_eta.length > 0) {
       stop_eta = stop_eta.filter((x) => { return stops[i][3] === x['busStopId'] });
-
-      if (stop_eta.length > 0) {
-        for (let x of stop_eta[0]['bus']) {
-          let condition = [
-            $('#show_scheduled').is(':checked'),
-            x['isScheduled'] == '0'
-          ];
+      
+      for (let x of stop_eta[0]['bus']) {
+        let condition = [
+          $('#show_scheduled').is(':checked'),
+          x['isScheduled'] == '0'
+        ];
           
-          if (condition.some(x => x)) {
-            secs = parseInt(x['departureTimeInSecond']);
+        if (condition.some(x => x)) {
+          secs = parseInt(x['departureTimeInSecond']);
             
-            if (secs > 0) {
-              time = new Date(last_update);
-              time.setSeconds(time.getSeconds() + secs);
-              
-              if (secs > 59) {
-                eta = Math.floor(secs / 60).toString() + 'm ' + (secs % 60).toString() + 's';
-              } else {
-                eta = secs + 's';
-              }
-        
-              row = document.createElement('tr');
-              
-              if (x['isScheduled'] == '1') {
-                row.setAttribute('class', 'scheduled');
-              } else if (secs < 59) {
-                row.setAttribute('class', 'arriving');
-              } else {
-                row.setAttribute('class', 'normal');
-              }
-              
-              create('td', x['busId'], row);
-              create('td', time.toLocaleTimeString('en-GB'), row);
-              create('td', eta, row);
-              
-              table.append(row);
+          if (secs > 0) {
+            time = new Date(last_update);
+            time.setSeconds(time.getSeconds() + secs);
+            
+            if (secs > 59) {
+              eta = Math.floor(secs / 60).toString() + 'm ' + (secs % 60).toString() + 's';
+            } else {
+              eta = secs + 's';
             }
+            
+            row = document.createElement('tr');
+            table.append(row);
+            
+            if (x['isScheduled'] == '1') {
+              row.setAttribute('class', 'scheduled');
+            } else if (secs < 59) {
+              row.setAttribute('class', 'arriving');
+            } else {
+              row.setAttribute('class', 'normal');
+            }
+            
+            create('td', x['busId'], row);
+            create('td', time.toLocaleTimeString('en-GB'), row);
+            create('td', eta, row);
           }
         };
       }
@@ -155,8 +182,7 @@ function refresh_output(stops) {
 }
 
 $(() => {
-  $('.query').hide();
-  $('#result').hide();
+  $('.screen > div:not(#init)').hide();
 
   $('#show_scheduled').prop('disabled', 1);
   $('#refresh').prop('disabled', 1);
@@ -165,35 +191,14 @@ $(() => {
 
   setTimeout(() => {
     $('#init').remove();
-    $('.query').show();
-
-    stops_out = stops_data.filter((x) => { return x[0] === $('#route').val() && x[1] === 'O'; });
-    $('#direction').append('<option value="O">' + stops_out[stops_out.length - 1][7] + '</option>');
-    stop_next = stops_data[stops_data.indexOf(stops_out[stops_out.length - 1]) + 1];
-    
-    if (stop_next[0] === $('#route').val() && stop_next[1] === 'I') {
-      stops_in = stops_data.filter((x) => { return x[0] === $('#route').val() && x[1] === 'I'; });
-      $('#direction').append('<option value="I">' + stops_in[stops_in.length - 1][7] + '</option>');
-    }
-    
-    get_eta_data();
-  }, 800)
+    $('.screen > div').show();
+    refresh_dir();
+  }, 900)
 });
 
 $('#route').on('change', () => {
   clear_refresh();
-  $('#direction').html('');
-  
-  stops_out = stops_data.filter((x) => { return x[0] === $('#route').val() && x[1] === 'O'; });
-  $('#direction').append('<option value="O">' + stops_out[stops_out.length - 1][7] + '</option>');
-  stop_next = stops_data[stops_data.indexOf(stops_out[stops_out.length - 1]) + 1];
-  
-  if (stop_next[0] === $('#route').val() && stop_next[1] === 'I') {
-    stops_in = stops_data.filter((x) => { return x[0] === $('#route').val() && x[1] === 'I'; });
-    $('#direction').append('<option value="I">' + stops_in[stops_in.length - 1][7] + '</option>');
-  }
-  
-  get_eta_data();
+  refresh_dir();
 });
 
 $('#direction').on('change', () => {
