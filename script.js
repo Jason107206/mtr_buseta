@@ -1,6 +1,6 @@
 var eta_data, stops_data, timer;
 
-function create(type, text, append_to, ...attributes){
+function create(type, text, append_to, ...attributes) {
   element = document.createElement(type);
   append_to.append(element);
   element.append(document.createTextNode(text));
@@ -70,12 +70,14 @@ function get_eta_data() {
 }
 
 function refresh_dir() {
+  lang = $('#stop_lang').val();
+
   stops_out = stops_data.filter((x) => {
     return x[0] === $('#route').val() && x[1] === 'O';
   });
 
   term_out = stops_out[stops_out.length - 1];
-  opt_html = '<option value="O">' + term_out[7] + '</option>';
+  opt_html = '<option value="O">' + term_out[lang] + '</option>';
 
   stop_next_index = stops_data.indexOf(term_out) + 1;
   stop_next = stops_data[stop_next_index];
@@ -84,63 +86,64 @@ function refresh_dir() {
     stop_next[0] === $('#route').val(),
     stop_next[1] === 'I'
   ];
-  
+
   if (condition.every(x => x)) {
     stops_in = stops_data.filter((x) => {
       return x[0] === $('#route').val() && x[1] === 'I';
     });
 
     term_in = stops_in[stops_in.length - 1];
-    opt_html += '<option value="I">' + term_in[7] + '</option>';
+    opt_html += '<option value="I">' + term_in[lang] + '</option>';
   }
-  
+
   $('#direction').html(opt_html);
   get_eta_data();
 }
 
 function refresh_output(stops) {
   last_update = new Date(eta_data['routeStatusTime']);
-  
-  $('#route_title').text('Route ' + $('#route').val() + ' - ' + stops[stops.length - 1][7]);
-  $('#last_update').text('Data updated at: ' + last_update.toLocaleTimeString('en-GB'));
+  lang = $('#stop_lang').val();
+
+  $('#route_title').text('Route ' + $('#route').val() + ' - ' + stops[stops.length - 1][lang]);
+  $('#last_update').text(last_update.toLocaleTimeString('en-GB'));
   $('#result').text('');
-  
+
   for (let i = 0; i < stops.length; i++) {
     table = document.createElement('table');
     $('#result').append(table);
-    
+
     row = document.createElement('tr');
     table.append(row);
-    create('td', i + '. ' + stops[i][7], row, ['colspan', '3']);
-    
+    create('th', i + '. ' + stops[i][lang], row, ['colspan', '3']);
+
     route_eta = eta_data['busStop'];
     stop_eta = route_eta.filter((x) => { return x['busStopId'] === stops[i][3] });
-    
+
     if (stop_eta.length > 0) {
       stop_eta = stop_eta[0]['bus'];
-      
+
       for (let i = 0; i < stop_eta.length; i++) {
         let condition = [
           $('#show_scheduled').is(':checked'),
           stop_eta[i]['isScheduled'] == '0'
         ];
-          
+
         if (condition.some(x => x)) {
           secs = parseInt(stop_eta[i]['departureTimeInSecond']);
-            
+
           if (secs > 0) {
             time = new Date(last_update);
             time.setSeconds(time.getSeconds() + secs);
-            
+
             if (secs > 59) {
               eta = Math.floor(secs / 60).toString() + 'm ' + (secs % 60).toString() + 's';
             } else {
               eta = secs + 's';
             }
-            
+
             row = document.createElement('tr');
             table.append(row);
-            
+
             if (stop_eta[i]['isScheduled'] == '1') {
               row.setAttribute('class', 'scheduled');
             } else if (secs < 59) {
@@ -148,7 +151,7 @@ function refresh_output(stops) {
             } else {
               row.setAttribute('class', 'normal');
             }
-            
+
             create('td', stop_eta[i]['busId'], row);
             create('td', time.toLocaleTimeString('en-GB'), row);
             create('td', eta, row);
@@ -156,14 +159,14 @@ function refresh_output(stops) {
         };
       }
     }
-    
+
     if (table.rows.length == 1) {
       row = document.createElement('tr');
       table.append(row);
       create('td', 'No departure', row, ['colspan', '3']);
     }
   };
-  
+
   let refresh_second = $('#auto_refresh').val();
   if (refresh_second > 0) {
     auto_refresh(refresh_second * 1000);
@@ -207,6 +210,11 @@ $('#auto_refresh').on('change', () => {
   if (refresh_second > 0) {
     auto_refresh(refresh_second * 1000);
   }
+});
+
+$('#stop_lang').on('change', () => {
+  clear_refresh();
+  refresh_dir();
 });
 
 $('#refresh').click(() => {
