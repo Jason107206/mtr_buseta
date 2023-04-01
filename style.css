@@ -79,7 +79,8 @@ h3 {
 
 button, select {
   width: 100%;
-  padding: 0.25rem;
+  height: 2rem;
+  padding: 0.35rem;
 }
 
 button > * {
@@ -91,8 +92,8 @@ button > span.material-symbols-outlined {
 }
 
 input[type="checkbox"] {
-  width: 1rem;
-  height: 1rem;
+  width: 1.15rem;
+  height: 1.15rem;
 }
 
 span:not(:last-of-type) {
