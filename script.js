@@ -1,4 +1,4 @@
-var eta_data, stops_data, timer;
+var eta_data, stops_data, timer, term_out, term_in;
 
 function create(type, text, append_to, ...attributes) {
   element = document.createElement(type);
@@ -94,6 +94,8 @@ function refresh_dir() {
 
     term_in = stops_in[stops_in.length - 1];
     opt_html += '<option value="I">' + term_in[lang] + '</option>';
+  } else {
+    term_in = undefined;
   }
 
   $('#direction').html(opt_html);
@@ -213,8 +215,21 @@ $('#auto_refresh').on('change', () => {
 });
 
 $('#stop_lang').on('change', () => {
-  clear_refresh();
-  refresh_dir();
+  lang = $('#stop_lang').val();
+  opt_html = '<option value="O">' + term_out[lang] + '</option>';
+  
+  if (typeof term_in !== 'undefined') {
+    term_in = stops_in[stops_in.length - 1];
+    opt_html += '<option value="I">' + term_in[lang] + '</option>';
+  }
+  
+  $('#direction').html(opt_html);
+  
+  if ($('#direction').val() === 'O') {
+    refresh_output(stops_out);
+  } else {
+    refresh_output(stops_in);
+  }
 });
 
 $('#refresh').click(() => {

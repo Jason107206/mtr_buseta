@@ -1,23 +1,28 @@
-@media only screen and (max-width: 768px) {
-  .card_secondary > div:last-of-type {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 4px;
-    margin-top: 4px;
+@media only screen and (max-width: 1024px) {
+  .screen {
+    display: block;
+    height: fit-content;
+    min-height: 100%;
+    padding: 16px;
   }
 
-  select:not(:last-child) {
-    margin-right: initial;
+  .screen > div:not(:last-child) {
+    margin-bottom: 16px;
   }
 }
 
-@media only screen and (min-width: 768px) {
-  .card_secondary > div:last-of-type {
-    display: initial;
+@media only screen and (min-width: 1024px) {
+  .screen {
+    display: grid;
+    height: 100%;
+    padding: 16px;
+    gap: 16px;
+    grid-template-columns: 375px 1fr;
   }
-  
-  select:not(:last-child) {
-    margin-right: 4px;
+
+  .screen > div {
+    height: 100%;
+    overflow-y: auto;
   }
 }
 
@@ -35,9 +40,6 @@ body {
 }
 
 .screen {
-  height: fit-content;
-  min-height: 100%;
-  padding: 16px;
   box-sizing: border-box;
 }
 
@@ -49,16 +51,20 @@ body {
   box-sizing: border-box;
 }
 
-.screen > div:not(:last-child) {
-  margin-bottom: 16px;
-}
-
-.card_search > div:not(:last-child), .card_eta > div:not(:last-child) {
+.screen > div > div:not(:last-child) {
   margin-bottom: 16px;
 }
 
 .card_secondary > * {
   vertical-align: middle;
+}
+
+.card_secondary > div:last-of-type {
+  margin-top: 4px;
+}
+
+.card_secondary > div:last-of-type > *:not(:last-child) {
+  margin-bottom: 4px;
 }
 
 .card_secondary > span:nth-of-type(2), .card_secondary > label > * {
@@ -70,10 +76,11 @@ h3 {
 }
 
 button, select {
+  width: 100%;
   padding: 0.25rem;
 }
 
-button > *, span {
+button > * {
   vertical-align: middle;
 }
 
@@ -86,13 +93,12 @@ input[type="checkbox"] {
   height: 1rem;
 }
 
-span:not(:last-child) {
+span:not(:last-of-type) {
   margin-right: 4px;
 }
 
 span.material-symbols-outlined {
   margin-right: 4px;
-  vertical-align: middle;
   font-size: 20px;
 }
 
@@ -112,6 +118,10 @@ tr.scheduled {
 
 tr.arriving {
   background-color: #ffffcc;
+}
+
+tr.normal {
+  background-color: #ccffcc;
 }
 
 th, td {
