@@ -33,7 +33,9 @@ html, body {
 
 body {
   margin: 0;
+  
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
@@ -60,11 +62,11 @@ body {
 }
 
 .card_secondary > div:last-of-type {
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 .card_secondary > div:last-of-type > *:not(:last-child) {
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .card_secondary > span:nth-of-type(2), .card_secondary > label > * {
@@ -99,7 +101,7 @@ span:not(:last-of-type) {
 
 span.material-symbols-outlined {
   margin-right: 4px;
-  font-size: 20px;
+  font-size: 24px;
 }
 
 table {
