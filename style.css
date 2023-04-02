@@ -116,15 +116,15 @@ table:not(:last-child) {
 }
 
 tr.scheduled {
-  background-color: #f5f5f5;
+  background-color: #ffe6e6;
 }
 
 tr.arriving {
-  background-color: #ffffcc;
+  background-color: #ffffe6;
 }
 
 tr.normal {
-  background-color: #ccffcc;
+  background-color: #e6ffe6;
 }
 
 th, td {

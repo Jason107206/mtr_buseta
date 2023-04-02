@@ -165,7 +165,7 @@ function refresh_output(stops) {
     if (table.rows.length == 1) {
       row = document.createElement('tr');
       table.append(row);
-      create('td', 'No departure', row, ['colspan', '3']);
+      create('td', 'No upcoming departure', row, ['colspan', '3']);
     }
   };
 
