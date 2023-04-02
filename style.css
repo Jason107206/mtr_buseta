@@ -116,7 +116,7 @@ table:not(:last-child) {
 }
 
 tr.scheduled {
-  background-color: #ffe6e6;
+  background-color: #f2f2f2;
 }
 
 tr.arriving {
