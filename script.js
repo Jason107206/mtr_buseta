@@ -13,15 +13,16 @@ function create(type, text, append_to, ...attributes) {
 }
 
 function auto_refresh(timeout) {
-  timer = setTimeout(() => {
-    get_eta_data();
-  }, timeout);
-}
-
-function clear_refresh() {
   if (timer != null) {
     clearTimeout(timer);
     timer = null;
+  }
+  
+  if (timeout != 0) {
+    timer = setTimeout(() => {
+      get_eta_data();
+      auto_refresh(timeout);
+    }, timeout * 1000);
   }
 }
 
@@ -41,31 +42,6 @@ function get_stop_data() {
           $('#route').append('<option value="' + x[0] + '">' + x[0] + '</option>');
         }
       })
-    });
-}
-
-function get_eta_data() {
-  const url = 'https://rt.data.gov.hk/v1/transport/mtr/bus/getSchedule';
-  const init = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      'language': 'zh',
-      'routeName': $('#route').val()
-    })
-  };
-
-  fetch(url, init)
-    .then(response => response.text())
-    .then(text => {
-      eta_data = JSON.parse(text);
-      if ($('#direction').val() === 'O') {
-        refresh_output(stops_out);
-      } else {
-        refresh_output(stops_in);
-      }
     });
 }
 
@@ -100,6 +76,31 @@ function refresh_dir() {
 
   $('#direction').html(opt_html);
   get_eta_data();
+}
+
+function get_eta_data() {
+  const url = 'https://rt.data.gov.hk/v1/transport/mtr/bus/getSchedule';
+  const init = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      'language': 'zh',
+      'routeName': $('#route').val()
+    })
+  };
+
+  fetch(url, init)
+    .then(response => response.text())
+    .then(text => {
+      eta_data = JSON.parse(text);
+      if ($('#direction').val() === 'O') {
+        refresh_output(stops_out);
+      } else {
+        refresh_output(stops_in);
+      }
+    });
 }
 
 function refresh_output(stops) {
@@ -168,12 +169,7 @@ function refresh_output(stops) {
       create('td', 'No upcoming departure', row, ['colspan', '3']);
     }
   };
-
-  let refresh_second = $('#auto_refresh').val();
-  if (refresh_second > 0) {
-    auto_refresh(refresh_second * 1000);
-  }
-
+  
   if ($('#show_scheduled').is(':disabled')) {
     $('.card_eta').show();
     $('#show_scheduled').prop('disabled', 0);
@@ -188,6 +184,7 @@ $(() => {
   $('#refresh').prop('disabled', 1);
   $('#auto_refresh').prop('disabled', 1);
   get_stop_data();
+  auto_refresh($('#auto_refresh').val());
 
   setTimeout(() => {
     $('#card_init').remove();
@@ -197,21 +194,17 @@ $(() => {
 });
 
 $('#route').on('change', () => {
-  clear_refresh();
+  auto_refresh($('#auto_refresh').val());
   refresh_dir();
 });
 
 $('#direction').on('change', () => {
-  clear_refresh();
+  auto_refresh($('#auto_refresh').val());
   get_eta_data();
 });
 
 $('#auto_refresh').on('change', () => {
-  clear_refresh();
-  let refresh_second = $('#auto_refresh').val();
-  if (refresh_second > 0) {
-    auto_refresh(refresh_second * 1000);
-  }
+  auto_refresh($('#auto_refresh').val());
 });
 
 $('#stop_lang').on('change', () => {
@@ -233,7 +226,7 @@ $('#stop_lang').on('change', () => {
 });
 
 $('#refresh').click(() => {
-  clear_refresh();
+  auto_refresh($('#auto_refresh').val());
   get_eta_data();
 });
 
