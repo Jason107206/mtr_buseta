@@ -108,7 +108,7 @@ function refresh_output(stops) {
   lang = $('#stop_lang').val();
 
   $('#route_title').text('Route ' + $('#route').val() + ' - ' + stops[stops.length - 1][lang]);
-  $('#last_update').text(last_update.toLocaleTimeString('en-GB'));
+  $('#last_update').text(last_update.toLocaleString('en-GB'));
   $('#result').text('');
 
   for (let i = 0; i < stops.length; i++) {
