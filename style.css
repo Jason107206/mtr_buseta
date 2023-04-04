@@ -31,12 +31,11 @@
     overflow-y: auto;
   }
 
-  /*.card_eta > div:first-of-type {
+  .container_refresh {
     position: sticky;
     position: -webkit-sticky;
-    top: 0;
-    background-color: #ffffff;
-  }*/
+    top: 16px;
+  }
 }
 
 html, body {

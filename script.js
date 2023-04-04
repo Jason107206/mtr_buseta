@@ -75,7 +75,7 @@ function refresh_dir() {
   } else {
     term_in = undefined;
   }
-
+  
   $('#direction').html(opt_html);
   get_eta_data();
 }
