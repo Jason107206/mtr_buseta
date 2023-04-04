@@ -28,12 +28,6 @@ function auto_refresh(timeout) {
   }
 }
 
-function get_stop_data() {
-  const url = 'mtr_bus_stops.csv';
-
-  return fetch(url);
-}
-
 function refresh_dir(direction = null) {
   let lang = $('#stop_lang').val();
 
@@ -189,21 +183,23 @@ $(() => {
   $('#refresh').prop('disabled', 1);
   $('#auto_refresh').prop('disabled', 1);
   
-  get_stop_data()
+  fetch('mtr_bus_stops.csv')
     .then(response => response.text())
     .then(text => {
-      stops_data = $.csv.toArrays(text);
-      stops_data.splice(0, 1);
-      
       let route_list = [];
       
+      stops_data = $.csv.toArrays(text);
+      stops_data.splice(0, 1);
       stops_data.filter((x) => {
         if (route_list.indexOf(x[0]) == -1) {
           route_list.push(x[0]);
           $('#route').append('<option value="' + x[0] + '">' + x[0] + '</option>');
         }
       });
-
+      
+      if (localStorage.getItem('route') !== null) {
+        $('#route').val(localStorage.getItem('route'));
+      }
       auto_refresh($('#auto_refresh').val());
       $('#card_init').remove();
       $('.card:not(#card_eta)').show();
@@ -216,6 +212,7 @@ $('#route').on('change', () => {
   auto_refresh($('#auto_refresh').val());
   refresh_dir();
   get_eta_data();
+  localStorage.setItem('route', $('#route').val());
 });
 
 $('#direction').on('change', () => {
