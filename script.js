@@ -1,4 +1,4 @@
-var eta_data, stops_data, timer, last_update, term_out, term_in;
+var last_update, timer, eta_data, stops_data, term_out, term_in;
 
 function create(type, text, append_to, ...attributes) {
   element = document.createElement(type);
@@ -31,35 +31,23 @@ function auto_refresh(timeout) {
 function get_stop_data() {
   const url = 'mtr_bus_stops.csv';
 
-  fetch(url)
-    .then(response => response.text())
-    .then(text => {
-      stops_data = $.csv.toArrays(text);
-      stops_data.splice(0, 1);
-
-      let route_list = [];
-      stops_data.filter((x) => {
-        if (route_list.indexOf(x[0]) == -1) {
-          route_list.push(x[0]);
-          $('#route').append('<option value="' + x[0] + '">' + x[0] + '</option>');
-        }
-      })
-    });
+  return fetch(url);
 }
 
-function refresh_dir() {
-  lang = $('#stop_lang').val();
+function refresh_dir(direction = null) {
+  let lang = $('#stop_lang').val();
 
   stops_out = stops_data.filter((x) => {
     return x[0] === $('#route').val() && x[1] === 'O';
   });
-
   term_out = stops_out[stops_out.length - 1];
-  opt_html = '<option value="O">' + term_out[lang] + '</option>';
+  
+  $('#direction').html('');
+  $('#direction').append('<option value="O">' + term_out[lang] + '</option>');
 
-  stop_next_index = stops_data.indexOf(term_out) + 1;
-  stop_next = stops_data[stop_next_index];
-
+  let stop_next_index = stops_data.indexOf(term_out) + 1;
+  let stop_next = stops_data[stop_next_index];
+  
   let condition = [
     stop_next[0] === $('#route').val(),
     stop_next[1] === 'I'
@@ -69,15 +57,16 @@ function refresh_dir() {
     stops_in = stops_data.filter((x) => {
       return x[0] === $('#route').val() && x[1] === 'I';
     });
-
+    
     term_in = stops_in[stops_in.length - 1];
-    opt_html += '<option value="I">' + term_in[lang] + '</option>';
+    $('#direction').append('<option value="I">' + term_in[lang] + '</option>');
   } else {
     term_in = undefined;
   }
-  
-  $('#direction').html(opt_html);
-  get_eta_data();
+
+  if (direction !== null) {
+    $('#direction').val(direction);
+  }
 }
 
 function get_eta_data() {
@@ -199,19 +188,34 @@ $(() => {
   $('#show_scheduled').prop('disabled', 1);
   $('#refresh').prop('disabled', 1);
   $('#auto_refresh').prop('disabled', 1);
-  get_stop_data();
-  auto_refresh($('#auto_refresh').val());
+  
+  get_stop_data()
+    .then(response => response.text())
+    .then(text => {
+      stops_data = $.csv.toArrays(text);
+      stops_data.splice(0, 1);
+      
+      let route_list = [];
+      
+      stops_data.filter((x) => {
+        if (route_list.indexOf(x[0]) == -1) {
+          route_list.push(x[0]);
+          $('#route').append('<option value="' + x[0] + '">' + x[0] + '</option>');
+        }
+      });
 
-  setTimeout(() => {
-    $('#card_init').remove();
-    $('.card:not(#card_eta)').show();
-    refresh_dir();
-  }, 900)
+      auto_refresh($('#auto_refresh').val());
+      $('#card_init').remove();
+      $('.card:not(#card_eta)').show();
+      refresh_dir();
+      get_eta_data();
+    });
 });
 
 $('#route').on('change', () => {
   auto_refresh($('#auto_refresh').val());
   refresh_dir();
+  get_eta_data();
 });
 
 $('#direction').on('change', () => {
@@ -224,16 +228,7 @@ $('#auto_refresh').on('change', () => {
 });
 
 $('#stop_lang').on('change', () => {
-  lang = $('#stop_lang').val();
-  opt_html = '<option value="O">' + term_out[lang] + '</option>';
-  
-  if (typeof term_in !== 'undefined') {
-    term_in = stops_in[stops_in.length - 1];
-    opt_html += '<option value="I">' + term_in[lang] + '</option>';
-  }
-  
-  $('#direction').html(opt_html);
-  
+  refresh_dir($('#direction').val());
   if ($('#direction').val() === 'O') {
     refresh_output(stops_out);
   } else {
