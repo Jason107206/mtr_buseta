@@ -1,4 +1,4 @@
-var last_update, timer, eta_data, stops_data, term_out, term_in;
+var last_update, timer, route_list,  eta_data, stops_data, term_out, term_in;
 
 function create(type, text, append_to, ...attributes) {
   element = document.createElement(type);
@@ -186,19 +186,20 @@ $(() => {
   fetch('mtr_bus_stops.csv')
     .then(response => response.text())
     .then(text => {
-      let route_list = [];
-      
+      route_list = [];
       stops_data = $.csv.toArrays(text);
       stops_data.splice(0, 1);
       stops_data.filter((x) => {
         if (route_list.indexOf(x[0]) == -1) {
           route_list.push(x[0]);
-          $('#route').append('<option value="' + x[0] + '">' + x[0] + '</option>');
+          $('#opt_route').append('<option value="' + x[0] + '" />');
         }
       });
       
       if (localStorage.getItem('route') !== null) {
         $('#route').val(localStorage.getItem('route'));
+      } else {
+        $('#route').val(route_list[0]);
       }
       auto_refresh($('#auto_refresh').val());
       $('#card_init').remove();
@@ -209,10 +210,18 @@ $(() => {
 });
 
 $('#route').on('change', () => {
-  auto_refresh($('#auto_refresh').val());
-  refresh_dir();
-  get_eta_data();
-  localStorage.setItem('route', $('#route').val());
+  if (route_list.includes($('#route').val())) {
+    localStorage.setItem('route', $('#route').val());
+    auto_refresh($('#auto_refresh').val());
+    refresh_dir();
+    get_eta_data();
+  } else {
+    if (localStorage.getItem('route') !== null) {
+      $('#route').val(localStorage.getItem('route'));
+    } else {
+      $('#route').val(route_list[0]);
+    }
+  }
 });
 
 $('#direction').on('change', () => {
