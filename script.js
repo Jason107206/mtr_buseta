@@ -14,7 +14,7 @@ function create(type, text, append_to, ...attributes) {
   return element;
 }
 
-function auto_refresh(timeout) {
+function auto_refresh(timeout = 0) {
   if (timer != null) {
     clearTimeout(timer);
     timer = null;
@@ -22,13 +22,14 @@ function auto_refresh(timeout) {
   
   if (timeout != 0) {
     timer = setTimeout(() => {
+      $('#route').val(localStorage.getItem('route'));
       get_eta_data();
       auto_refresh(timeout);
     }, timeout * 1000);
   }
 }
 
-function refresh_dir(direction = null) {
+function refresh_dir(direction) {
   let lang = $('#stop_lang').val();
 
   stops_out = stops_data.filter((x) => {
@@ -58,7 +59,7 @@ function refresh_dir(direction = null) {
     term_in = undefined;
   }
 
-  if (direction !== null) {
+  if (typeof direction !== 'undefined') {
     $('#direction').val(direction);
   }
 }
@@ -90,7 +91,7 @@ function get_eta_data() {
 }
 
 function refresh_output(stops) {
-  lang = $('#stop_lang').val();
+  let lang = $('#stop_lang').val();
   
   $('#route_title').text('Route ' + $('#route').val() + ' - ' + stops[stops.length - 1][lang]);
   $('#last_update').text(last_update.toLocaleString('en-GB'));
@@ -177,6 +178,21 @@ function refresh_output(stops) {
   }
 }
 
+function on_route_change() {
+  if (route_list.includes($('#route').val())) {
+    localStorage.setItem('route', $('#route').val());
+    auto_refresh($('#auto_refresh').val());
+    refresh_dir();
+    get_eta_data();
+  } else {
+    if (localStorage.getItem('route') !== null) {
+      $('#route').val(localStorage.getItem('route'));
+    } else {
+      $('#route').val(route_list[0]);
+    }
+  }
+}
+
 $(() => {
   $('.card:not(#card_init)').hide();
   $('#show_scheduled').prop('disabled', 1);
@@ -209,18 +225,18 @@ $(() => {
     });
 });
 
+$('#route').on('input', () => {
+  auto_refresh();
+});
+
 $('#route').on('change', () => {
-  if (route_list.includes($('#route').val())) {
-    localStorage.setItem('route', $('#route').val());
-    auto_refresh($('#auto_refresh').val());
-    refresh_dir();
-    get_eta_data();
-  } else {
-    if (localStorage.getItem('route') !== null) {
-      $('#route').val(localStorage.getItem('route'));
-    } else {
-      $('#route').val(route_list[0]);
-    }
+  on_route_change();
+});
+
+$('#route').on('keydown', (event) => {
+  if (event.which == 13) {
+    event.preventDefault();
+    on_route_change();
   }
 });
 
