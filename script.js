@@ -1,15 +1,17 @@
-var eta_data, stops_data, timer, term_out, term_in;
+var eta_data, stops_data, timer, last_update, term_out, term_in;
 
 function create(type, text, append_to, ...attributes) {
   element = document.createElement(type);
   append_to.append(element);
-  element.append(document.createTextNode(text));
+  element.append(text);
 
   if (typeof attributes !== 'undefined') {
     for (i in attributes) {
       element.setAttribute(attributes[i][0], attributes[i][1]);
     }
   }
+
+  return element;
 }
 
 function auto_refresh(timeout) {
@@ -94,6 +96,7 @@ function get_eta_data() {
   fetch(url, init)
     .then(response => response.text())
     .then(text => {
+      last_update = new Date();
       eta_data = JSON.parse(text);
       if ($('#direction').val() === 'O') {
         refresh_output(stops_out);
@@ -104,65 +107,78 @@ function get_eta_data() {
 }
 
 function refresh_output(stops) {
-  last_update = new Date(eta_data['routeStatusTime']);
   lang = $('#stop_lang').val();
-
+  
   $('#route_title').text('Route ' + $('#route').val() + ' - ' + stops[stops.length - 1][lang]);
   $('#last_update').text(last_update.toLocaleString('en-GB'));
-  $('#result').text('');
+  $('#card_eta').text('');
 
-  for (let i = 0; i < stops.length; i++) {
+  for (let stop_index = 0; stop_index < stops.length; stop_index++) {
     table = document.createElement('table');
-    $('#result').append(table);
+    $('#card_eta').append(table);
 
     row = document.createElement('tr');
     table.append(row);
-    create('th', i + '. ' + stops[i][lang], row, ['colspan', '3']);
+    create('th', stop_index + '. ' + stops[stop_index][lang], row, ['colspan', '3']);
 
     route_eta = eta_data['busStop'];
-    stop_eta = route_eta.filter((x) => { return x['busStopId'] === stops[i][3] });
+    
+    if (route.length > 0) {
+      stop_eta = route_eta.filter((x) => { return x['busStopId'] === stops[stop_index][3] });
 
-    if (stop_eta.length > 0) {
-      stop_eta = stop_eta[0]['bus'];
+      if (stop_eta.length > 0) {
+        stop_eta = stop_eta[0]['bus'];
+      }
+    } else {
+      stop_eta = [];
+    }
+    
+    for (let i = 0; i < stop_eta.length; i++) {
+      let condition = [
+        $('#show_scheduled').is(':checked'),
+        stop_eta[i]['isScheduled'] == '0'
+      ];
 
-      for (let i = 0; i < stop_eta.length; i++) {
+      if (condition.some(x => x)) {
         let condition = [
-          $('#show_scheduled').is(':checked'),
-          stop_eta[i]['isScheduled'] == '0'
-        ];
-
-        if (condition.some(x => x)) {
+          stop_index < stops.length - 1, 
+          stop_eta[i]['isScheduled'] == '1'
+        ]
+        
+        if (condition.every(x => x)) {
           secs = parseInt(stop_eta[i]['departureTimeInSecond']);
+        } else {
+          secs = parseInt(stop_eta[i]['arrivalTimeInSecond']);
+        }
+        
+        time = new Date(last_update);
+        time.setSeconds(time.getSeconds() + secs);
+        
+        if (secs > 59) {
+          eta = Math.floor(secs / 60).toString() + 'm ' + (secs % 60).toString() + 's';
+        } else if (secs > 0) {
+          eta = secs + 's';
+        } else {
+          eta = '-';
+        }
 
-          if (secs > 0) {
-            time = new Date(last_update);
-            time.setSeconds(time.getSeconds() + secs);
+        row = document.createElement('tr');
+        table.append(row);
 
-            if (secs > 59) {
-              eta = Math.floor(secs / 60).toString() + 'm ' + (secs % 60).toString() + 's';
-            } else {
-              eta = secs + 's';
-            }
+        if (stop_eta[i]['isScheduled'] == '1') {
+          row.setAttribute('class', 'scheduled');
+        } else if (secs < 179) {
+          row.setAttribute('class', 'arriving');
+        } else {
+          row.setAttribute('class', 'normal');
+        }
 
-            row = document.createElement('tr');
-            table.append(row);
-
-            if (stop_eta[i]['isScheduled'] == '1') {
-              row.setAttribute('class', 'scheduled');
-            } else if (secs < 59) {
-              row.setAttribute('class', 'arriving');
-            } else {
-              row.setAttribute('class', 'normal');
-            }
-
-            create('td', stop_eta[i]['busId'], row);
-            create('td', time.toLocaleTimeString('en-GB'), row);
-            create('td', eta, row);
-          }
-        };
+        create('td', stop_eta[i]['busId'], row);
+        create('td', time.toLocaleTimeString('en-GB'), row);
+        create('td', eta, row);
       }
     }
-
+    
     if (table.rows.length == 1) {
       row = document.createElement('tr');
       table.append(row);
@@ -171,7 +187,7 @@ function refresh_output(stops) {
   };
   
   if ($('#show_scheduled').is(':disabled')) {
-    $('.card_eta').show();
+    $('#card_eta').show();
     $('#show_scheduled').prop('disabled', 0);
     $('#refresh').prop('disabled', 0);
     $('#auto_refresh').prop('disabled', 0);
@@ -179,7 +195,7 @@ function refresh_output(stops) {
 }
 
 $(() => {
-  $('.screen > div:not(#card_init)').hide();
+  $('.card:not(#card_init)').hide();
   $('#show_scheduled').prop('disabled', 1);
   $('#refresh').prop('disabled', 1);
   $('#auto_refresh').prop('disabled', 1);
@@ -188,7 +204,7 @@ $(() => {
 
   setTimeout(() => {
     $('#card_init').remove();
-    $('.card_search').show();
+    $('.card:not(#card_eta)').show();
     refresh_dir();
   }, 900)
 });

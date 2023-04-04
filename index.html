@@ -12,11 +12,11 @@
 
 <body>
   <div class="screen">
-    <div id="card_init">
+    <div id="card_init" class="card">
       <h3>MTR Bus Arrival Time Checker</h3>
       <p>Initializing...</p>
     </div>
-    <div class="card_search">
+    <div id="card_search" class="card">
       <h3>MTR Bus Arrival Time Checker</h3>
       <div class="card_secondary">
         <span class="material-symbols-outlined">language</span>
@@ -62,17 +62,21 @@
         <input id="show_scheduled" type="checkbox" checked>
       </div>
     </div>
-    <div class="card_eta">
-      <h3 id="route_title"></h3>
-      <div class="card_secondary">
-        <span class="material-symbols-outlined">update</span>
-        <span>Data updated at:</span>
-        <span id="last_update"></span>
+    <div>
+      <div id="card_route" class="card">
         <div>
+          <h3 id="route_title"></h3>
+          <div class="card_secondary">
+            <span class="material-symbols-outlined">update</span>
+            <span>Data updated at:</span>
+            <span id="last_update"></span>
+          </div>
+        </div>
+        <div class="card_secondary container_refresh">
           <button id="refresh"><span class="material-symbols-outlined">refresh</span><span>Refresh</span></button>
         </div>
+        <div id="card_eta"></div>
       </div>
-      <div id="result"></div>
     </div>
   </div>
 
