@@ -14,13 +14,13 @@ function create(type, text, append_to, ...attributes) {
   return element;
 }
 
-function auto_refresh(timeout = 0) {
+function auto_refresh(timeout) {
   if (timer != null) {
     clearTimeout(timer);
     timer = null;
   }
   
-  if (timeout != 0) {
+  if (typeof timeout !== 'undefined') {
     timer = setTimeout(() => {
       get_eta_data();
       auto_refresh(timeout);
