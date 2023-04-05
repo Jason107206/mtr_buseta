@@ -1,4 +1,4 @@
-var last_update, timer, route_list,  eta_data, stops_data, term_out, term_in;
+var last_update, timer, route, route_list,  eta_data, stops_data, term_out, term_in;
 
 function create(type, text, append_to, ...attributes) {
   element = document.createElement(type);
@@ -22,7 +22,6 @@ function auto_refresh(timeout = 0) {
   
   if (timeout != 0) {
     timer = setTimeout(() => {
-      $('#route').val(localStorage.getItem('route'));
       get_eta_data();
       auto_refresh(timeout);
     }, timeout * 1000);
@@ -33,7 +32,7 @@ function refresh_dir(direction) {
   let lang = $('#stop_lang').val();
 
   stops_out = stops_data.filter((x) => {
-    return x[0] === $('#route').val() && x[1] === 'O';
+    return x[0] === route && x[1] === 'O';
   });
   term_out = stops_out[stops_out.length - 1];
   
@@ -44,13 +43,13 @@ function refresh_dir(direction) {
   let stop_next = stops_data[stop_next_index];
   
   let condition = [
-    stop_next[0] === $('#route').val(),
+    stop_next[0] === route,
     stop_next[1] === 'I'
   ];
 
   if (condition.every(x => x)) {
     stops_in = stops_data.filter((x) => {
-      return x[0] === $('#route').val() && x[1] === 'I';
+      return x[0] === route && x[1] === 'I';
     });
     
     term_in = stops_in[stops_in.length - 1];
@@ -73,7 +72,7 @@ function get_eta_data() {
     },
     body: JSON.stringify({
       'language': 'zh',
-      'routeName': $('#route').val()
+      'routeName': route
     })
   };
 
@@ -93,7 +92,7 @@ function get_eta_data() {
 function refresh_output(stops) {
   let lang = $('#stop_lang').val();
   
-  $('#route_title').text('Route ' + $('#route').val() + ' - ' + stops[stops.length - 1][lang]);
+  $('#route_title').text('Route ' + route + ' - ' + stops[stops.length - 1][lang]);
   $('#last_update').text(last_update.toLocaleString('en-GB'));
   $('#card_eta').text('');
 
@@ -178,20 +177,25 @@ function refresh_output(stops) {
   }
 }
 
-function on_route_change() {
-  if (route_list.includes($('#route').val())) {
-    localStorage.setItem('route', $('#route').val());
-    auto_refresh($('#auto_refresh').val());
-    refresh_dir();
-    get_eta_data();
-  } else {
+function change_route() {
+  route = $('#route').val();
+  localStorage.setItem('route', route);
+  refresh_dir();
+  get_eta_data();
+  auto_refresh($('#auto_refresh').val());
+}
+
+function revert_route_change() {
+ if (route != null) {
     if (localStorage.getItem('route') !== null) {
-      $('#route').val(localStorage.getItem('route'));
+      route = localStorage.getItem('route');
     } else {
-      $('#route').val(route_list[0]);
+      route = route_list[0];
     }
   }
+  $('#route').val(route);
 }
+
 
 $(() => {
   $('.card:not(#card_init)').hide();
@@ -213,10 +217,12 @@ $(() => {
       });
       
       if (localStorage.getItem('route') !== null) {
-        $('#route').val(localStorage.getItem('route'));
+        route = localStorage.getItem('route');
       } else {
-        $('#route').val(route_list[0]);
+        route = route_list[0];
       }
+      $('#route').val(route);
+      
       auto_refresh($('#auto_refresh').val());
       $('#card_init').remove();
       $('.card:not(#card_eta)').show();
@@ -225,18 +231,27 @@ $(() => {
     });
 });
 
-$('#route').on('input', () => {
-  auto_refresh();
-});
-
 $('#route').on('change', () => {
-  on_route_change();
+  if (route_list.includes($('#route').val()) === false) {
+    revert_route_change()
+  }
+})
+
+$('#route').on('input', () => {
+  $('#route').val($('#route').val().toUpperCase());
+  if (route_list.includes($('#route').val())) {
+    change_route();
+  }
 });
 
 $('#route').on('keydown', (event) => {
   if (event.which == 13) {
     event.preventDefault();
-    on_route_change();
+    if (route_list.includes($('#route').val())) {
+      change_route();
+    } else {
+      revert_route_change();
+    }
   }
 });
 
