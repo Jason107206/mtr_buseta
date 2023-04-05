@@ -3,17 +3,11 @@
     display: block;
     height: fit-content;
     min-height: 100%;
-    padding: 16px;
+    padding: 20px;
   }
 
   .card:not(:last-child) {
-    margin-bottom: 16px;
-  }
-
-  .container_refresh {
-    position: sticky;
-    position: -webkit-sticky;
-    top: 16px;
+    margin-bottom: 20px;
   }
 }
 
@@ -21,20 +15,14 @@
   .screen {
     display: grid;
     height: 100%;
-    padding: 16px;
-    gap: 16px;
+    padding: 20px;
+    gap: 20px;
     grid-template-columns: 375px 1fr;
   }
 
   .card {
     height: 100%;
     overflow-y: auto;
-  }
-
-  .container_refresh {
-    position: sticky;
-    position: -webkit-sticky;
-    top: 16px;
   }
 }
 
@@ -45,6 +33,7 @@ html, body {
 
 body {
   margin: 0;
+  background-color: #dcdcdc;
   
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   
@@ -58,35 +47,39 @@ body {
 }
 
 .card {
-  padding: 16px;
-  border: 0.5px solid #DCDCDC;
+  padding: 20px;
+  border: 2px solid #999999;
   border-radius: 16px;
-  box-shadow: 2px 2px #F5F5F5;
+  background-color: #ffffff;
   box-sizing: border-box;
 }
 
-.card > div:not(:last-child) {
-  margin-bottom: 16px;
+.section:not(:last-child) {
+  margin-bottom: 20px;
 }
 
-.card_secondary > * {
+.section > * {
   vertical-align: middle;
 }
 
-.card_secondary > div:last-of-type {
-  margin-top: 8px;
+.section > *:not(div):not(:last-child) {
+  margin-bottom: 10px;
 }
 
-.card_secondary > div:last-of-type > *:not(:last-child) {
-  margin-bottom: 8px;
+.label:not(:last-child) {
+  margin-bottom: 10px;
 }
 
-.card_secondary > span:nth-of-type(2), .card_secondary > label > * {
-  font-weight: 600;
+.label > * {
+  vertical-align: middle;
 }
 
-h3 {
-  font-size: 1.25rem;
+.container_refresh {
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0px;
+  padding: 20px 0px 20px;
+  background-color: #ffffff;
 }
 
 button, input[type="text"], select {
@@ -94,7 +87,15 @@ button, input[type="text"], select {
   height: 2.25rem;
   padding: 0.35rem;
   box-sizing: border-box;
-  font-size: 0.9rem;
+  border: 2px solid #999999;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: 0.5s background-color;
+}
+
+button:active, select:active {
+  background-color: #d9d9d9;
 }
 
 button > * {
@@ -115,8 +116,8 @@ input[type="text"] {
   padding-right: 0.5rem;
 }
 
-span:not(:last-of-type) {
-  margin-right: 4px;
+h3 {
+  margin: 20px 0px;
 }
 
 span.material-symbols-outlined {
@@ -131,7 +132,7 @@ table {
 }
 
 table:not(:last-child) {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 tr.scheduled {
@@ -144,7 +145,7 @@ tr.arriving {
 
 th, td {
   padding: 8px;
-  border: 1px solid #dddddd;
+  border: 1px solid #999999;
 }
 
 th {

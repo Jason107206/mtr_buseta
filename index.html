@@ -18,61 +18,65 @@
     </div>
     <div id="card_search" class="card">
       <h3>MTR Bus Estimated Arrival Time</h3>
-      <div class="card_secondary">
-        <span class="material-symbols-outlined">language</span>
-        <label for="stop_lang">
-          <span>Language of stops:</span>
-        </label>
-        <div>
-          <select id="stop_lang">
-            <option value="6">Chinese</option>
-            <option value="7" selected>English</option>
-          </select>
+      <div class="section">
+        <div class="label">
+          <span class="material-symbols-outlined">route</span>
+          <label for="route">
+            <span>Bus Route</span>
+          </label>
         </div>
+        <input type="text" id="route" list="opt_route" maxlength="4"></input>
+        <select id="direction"></select>
       </div>
-      <div class="card_secondary">
-        <span class="material-symbols-outlined">route</span>
-        <span>Bus route:</span>
-        <div>
-          <input type="text" id="route" list="opt_route" maxlength="4"></input>
-          <select id="direction"></select>
+      <div class="section">
+        <div class="label">
+          <span class="material-symbols-outlined">autorenew</span>
+          <label for="auto_refresh">
+            <span>Refresh Automatically</span>
+          </label>
         </div>
+        <select id="auto_refresh">
+          <option value="0">Disabled</option>
+          <option value="5">5 seconds</option>
+          <option value="10" selected>10 seconds</option>
+          <option value="20">20 seconds</option>
+          <option value="30">30 seconds</option>
+          <option value="60">60 seconds</option>
+        </select>
       </div>
-      <div class="card_secondary">
-        <span class="material-symbols-outlined">autorenew</span>
-        <label for="auto_refresh">
-          <span>Refresh automatically:</span>
-        </label>
-        <div>
-          <select id="auto_refresh">
-            <option value="0">Disabled</option>
-            <option value="5">5 seconds</option>
-            <option value="10" selected>10 seconds</option>
-            <option value="20">20 seconds</option>
-            <option value="30">30 seconds</option>
-            <option value="60">60 seconds</option>
-          </select>
+      <div class="section">
+        <div class="label">
+          <span class="material-symbols-outlined">settings</span>
+          <label for="stop_lang">
+            <span>Settings</span>
+          </label>
         </div>
-      </div>
-      <div class="card_secondary">
-        <span class="material-symbols-outlined">calendar_today</span>
-        <label for="show_scheduled">
-          <span>Scheduled Departures:</span>
-        </label>
-        <input id="show_scheduled" type="checkbox" checked>
+        <button id="stop_lang">
+          <span class="material-symbols-outlined">language</span>
+          <span>Change stop language to Chinese</span>
+        </button>
+        <button id="show_scheduled">
+          <span class="material-symbols-outlined">calendar_today</span>
+          <span>Hide Scheduled Departures</span>
+        </button>
       </div>
     </div>
     <div id="card_route" class="card">
       <div>
         <h3 id="route_title"></h3>
-        <div class="card_secondary">
-          <span class="material-symbols-outlined">update</span>
-          <span>Data updated at:</span>
-          <span id="last_update"></span>
+        <div class="section">
+          <div class="label">
+            <span class="material-symbols-outlined">update</span>
+            <span>Data updated at:</span>
+            <span id="last_update"></span>
+          </div>
         </div>
       </div>
-      <div class="card_secondary container_refresh">
-        <button id="refresh"><span class="material-symbols-outlined">refresh</span><span>Refresh</span></button>
+      <div class="container_refresh">
+        <button id="refresh">
+          <span class="material-symbols-outlined">refresh</span>
+          <span>Refresh</span>
+        </button>
       </div>
       <div id="card_eta"></div>
     </div>

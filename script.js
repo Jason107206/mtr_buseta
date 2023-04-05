@@ -1,4 +1,4 @@
-var last_update, timer, route, route_list,  eta_data, stops_data, term_out, term_in;
+var route, last_update, lang = 7, show_scheduled = 1, timer, route_list, eta_data, stops_data, term_out, term_in;
 
 function create(type, text, append_to, ...attributes) {
   element = document.createElement(type);
@@ -20,7 +20,7 @@ function auto_refresh(timeout) {
     timer = null;
   }
   
-  if (typeof timeout !== 'undefined') {
+  if (timeout != 0) {
     timer = setTimeout(() => {
       get_eta_data();
       auto_refresh(timeout);
@@ -29,8 +29,6 @@ function auto_refresh(timeout) {
 }
 
 function refresh_dir(direction) {
-  let lang = $('#stop_lang').val();
-
   stops_out = stops_data.filter((x) => {
     return x[0] === route && x[1] === 'O';
   });
@@ -81,16 +79,16 @@ function get_eta_data() {
     .then(text => {
       last_update = new Date();
       eta_data = JSON.parse(text);
-      if ($('#direction').val() === 'O') {
-        refresh_output(stops_out);
-      } else {
-        refresh_output(stops_in);
-      }
+      refresh_output();
     });
 }
 
-function refresh_output(stops) {
-  let lang = $('#stop_lang').val();
+function refresh_output() {
+  if ($('#direction').val() === 'O') {
+    stops = stops_out;
+  } else {
+    stops = stops_in;
+  }
   
   $('#route_title').text('Route ' + route + ' - ' + stops[stops.length - 1][lang]);
   $('#last_update').text(last_update.toLocaleString('en-GB'));
@@ -118,7 +116,7 @@ function refresh_output(stops) {
     
     for (let i = 0; i < stop_eta.length; i++) {
       let condition = [
-        $('#show_scheduled').is(':checked'),
+        show_scheduled,
         stop_eta[i]['isScheduled'] == '0'
       ];
 
@@ -170,10 +168,11 @@ function refresh_output(stops) {
   };
   
   if ($('#show_scheduled').is(':disabled')) {
-    $('#card_eta').show();
+    $('#auto_refresh').prop('disabled', 0);
+    $('#stop_lang').prop('disabled', 0);
     $('#show_scheduled').prop('disabled', 0);
     $('#refresh').prop('disabled', 0);
-    $('#auto_refresh').prop('disabled', 0);
+    $('#card_eta').show();
   }
 }
 
@@ -199,9 +198,10 @@ function revert_route_change() {
 
 $(() => {
   $('.card:not(#card_init)').hide();
+  $('#stop_lang').prop('disabled', 1);
   $('#show_scheduled').prop('disabled', 1);
-  $('#refresh').prop('disabled', 1);
   $('#auto_refresh').prop('disabled', 1);
+  $('#refresh').prop('disabled', 1);
   
   fetch('mtr_bus_stops.csv')
     .then(response => response.text())
@@ -233,7 +233,7 @@ $(() => {
 
 $('#route').on('change', () => {
   if (route_list.includes($('#route').val()) === false) {
-    revert_route_change()
+    revert_route_change();
   }
 })
 
@@ -264,24 +264,32 @@ $('#auto_refresh').on('change', () => {
   auto_refresh($('#auto_refresh').val());
 });
 
-$('#stop_lang').on('change', () => {
-  refresh_dir($('#direction').val());
-  if ($('#direction').val() === 'O') {
-    refresh_output(stops_out);
+$('#stop_lang').click(() => {
+  if (lang == 6) {
+    lang = 7;
+    $('#stop_lang > span:last-child').html('Change stop language to Chinese');
   } else {
-    refresh_output(stops_in);
+    lang = 6;
+    $('#stop_lang > span:last-child').html('Change stop language to English');
   }
+  
+  refresh_dir($('#direction').val());
+  refresh_output();
+});
+
+$('#show_scheduled').click(() => {
+  show_scheduled = !show_scheduled;
+  
+  if (show_scheduled) {
+    $('#show_scheduled > span:last-child').html('Hide Scheduled Departures');
+  } else {
+    $('#show_scheduled > span:last-child').html('Show Scheduled Departures');
+  }
+  
+  refresh_output();
 });
 
 $('#refresh').click(() => {
   auto_refresh($('#auto_refresh').val());
   get_eta_data();
-});
-
-$('#show_scheduled').click(() => {
-  if ($('#direction').val() === 'O') {
-    refresh_output(stops_out);
-  } else {
-    refresh_output(stops_in);
-  }
 });
