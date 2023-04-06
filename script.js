@@ -80,6 +80,11 @@ function get_eta_data() {
       last_update = new Date();
       eta_data = JSON.parse(text);
       refresh_output();
+    })
+    .catch(err => {
+      last_update = new Date();
+      eta_data = [];
+      refresh_output()
     });
 }
 
@@ -102,9 +107,13 @@ function refresh_output() {
     table.append(row);
     create('th', stop_index + '. ' + stops[stop_index][lang], row, ['colspan', '3']);
 
-    route_eta = eta_data['busStop'];
+    if (eta_data.length > 0) {
+      route_eta = eta_data['busStop'];
+    } else {
+      route_eta = [];
+    }
     
-    if (route.length > 0) {
+    if (route_eta.length > 0) {
       stop_eta = route_eta.filter((x) => { return x['busStopId'] === stops[stop_index][3] });
 
       if (stop_eta.length > 0) {
@@ -198,6 +207,8 @@ function revert_route_change() {
 
 $(() => {
   $('.card:not(#card_init)').hide();
+  $('#route').prop('disabled', 1);
+  $('#direction').prop('disabled', 1);
   $('#stop_lang').prop('disabled', 1);
   $('#show_scheduled').prop('disabled', 1);
   $('#auto_refresh').prop('disabled', 1);
@@ -222,12 +233,13 @@ $(() => {
         route = route_list[0];
       }
       $('#route').val(route);
-      
-      auto_refresh($('#auto_refresh').val());
+      $('#route').prop('disabled', 0);
       $('#card_init').remove();
       $('.card:not(#card_eta)').show();
       refresh_dir();
+      $('#direction').prop('disabled', 0);
       get_eta_data();
+      auto_refresh($('#auto_refresh').val());
     });
 });
 

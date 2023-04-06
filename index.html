@@ -13,55 +13,59 @@
 <body>
   <div class="screen">
     <div id="card_init" class="card">
-      <h3>MTR Bus Estimated Arrival Time</h3>
-      <p>Initializing...</p>
+      <div>
+        <h3>MTR Bus Estimated Arrival Time</h3>
+        <p>Initializing...</p>
+      </div>
     </div>
     <div id="card_search" class="card">
-      <h3>MTR Bus Estimated Arrival Time</h3>
-      <div class="section">
-        <div class="label">
-          <span class="material-symbols-outlined">route</span>
-          <label for="route">
-            <span>Bus Route</span>
-          </label>
+      <div>
+        <h3>MTR Bus Estimated Arrival Time</h3>
+        <div class="section">
+          <div class="label">
+            <span class="material-symbols-outlined">route</span>
+            <label for="route">
+              <span>Bus Route</span>
+            </label>
+          </div>
+          <input type="text" id="route" list="opt_route" maxlength="4"></input>
+          <select id="direction"></select>
         </div>
-        <input type="text" id="route" list="opt_route" maxlength="4"></input>
-        <select id="direction"></select>
-      </div>
-      <div class="section">
-        <div class="label">
-          <span class="material-symbols-outlined">autorenew</span>
-          <label for="auto_refresh">
-            <span>Refresh Automatically</span>
-          </label>
+        <div class="section">
+          <div class="label">
+            <span class="material-symbols-outlined">autorenew</span>
+            <label for="auto_refresh">
+              <span>Refresh Automatically</span>
+            </label>
+          </div>
+          <select id="auto_refresh">
+            <option value="0">Disabled</option>
+            <option value="5">5 seconds</option>
+            <option value="10" selected>10 seconds</option>
+            <option value="20">20 seconds</option>
+            <option value="30">30 seconds</option>
+            <option value="60">60 seconds</option>
+          </select>
         </div>
-        <select id="auto_refresh">
-          <option value="0">Disabled</option>
-          <option value="5">5 seconds</option>
-          <option value="10" selected>10 seconds</option>
-          <option value="20">20 seconds</option>
-          <option value="30">30 seconds</option>
-          <option value="60">60 seconds</option>
-        </select>
-      </div>
-      <div class="section">
-        <div class="label">
-          <span class="material-symbols-outlined">settings</span>
-          <label for="stop_lang">
-            <span>Settings</span>
-          </label>
+        <div class="section">
+          <div class="label">
+            <span class="material-symbols-outlined">settings</span>
+            <label for="stop_lang">
+              <span>Settings</span>
+            </label>
+          </div>
+          <button id="stop_lang">
+            <span class="material-symbols-outlined">language</span>
+            <span>Change stop language to Chinese</span>
+          </button>
+          <button id="show_scheduled">
+            <span class="material-symbols-outlined">calendar_today</span>
+            <span>Hide Scheduled Departures</span>
+          </button>
         </div>
-        <button id="stop_lang">
-          <span class="material-symbols-outlined">language</span>
-          <span>Change stop language to Chinese</span>
-        </button>
-        <button id="show_scheduled">
-          <span class="material-symbols-outlined">calendar_today</span>
-          <span>Hide Scheduled Departures</span>
-        </button>
       </div>
     </div>
-    <div id="card_route" class="card">
+    <div class="card" id="card_route">
       <div>
         <h3 id="route_title"></h3>
         <div class="section">
@@ -70,15 +74,13 @@
             <span>Data updated at:</span>
             <span id="last_update"></span>
           </div>
+          <button id="refresh">
+            <span class="material-symbols-outlined">refresh</span>
+            <span>Refresh</span>
+          </button>
         </div>
+        <div id="card_eta"></div>
       </div>
-      <div class="container_refresh">
-        <button id="refresh">
-          <span class="material-symbols-outlined">refresh</span>
-          <span>Refresh</span>
-        </button>
-      </div>
-      <div id="card_eta"></div>
     </div>
   </div>
 

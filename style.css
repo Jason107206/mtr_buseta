@@ -1,13 +1,23 @@
 @media only screen and (max-width: 1024px) {
   .screen {
-    display: block;
     height: fit-content;
     min-height: 100%;
+  }
+  
+  .card:not(:last-child) {
+    padding: 20px 20px 0px 20px;
+  }
+
+  .card:last-child {
     padding: 20px;
   }
 
-  .card:not(:last-child) {
-    margin-bottom: 20px;
+  #card_route {
+    height: 100vh;
+  }
+
+  #card_route > div {
+    height: 100%;
   }
 }
 
@@ -15,14 +25,23 @@
   .screen {
     display: grid;
     height: 100%;
-    padding: 20px;
-    gap: 20px;
     grid-template-columns: 375px 1fr;
   }
-
+  
+  .card:not(:last-child) {
+    padding: 20px 0px 20px 20px;
+  }
+  
   .card {
+    height: 100vh;
+  }
+
+  .card > div {
     height: 100%;
-    overflow-y: auto;
+  }
+
+  #card_eta {
+    min-height: 100px;
   }
 }
 
@@ -32,7 +51,7 @@ html, body {
 }
 
 body {
-  margin: 0;
+  margin: 0px;
   background-color: #dcdcdc;
   
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -42,15 +61,18 @@ body {
   user-select: none;
 }
 
-.screen {
-  box-sizing: border-box;
+.card:last-child, .card > div {
+  padding: 20px;
 }
 
-.card {
-  padding: 20px;
+.card > div {
   border: 2px solid #999999;
   border-radius: 16px;
   background-color: #ffffff;
+  overflow-y: auto;
+}
+
+div, button, input[type="text"], select {
   box-sizing: border-box;
 }
 
@@ -58,35 +80,28 @@ body {
   margin-bottom: 20px;
 }
 
-.section > * {
-  vertical-align: middle;
-}
-
-.section > *:not(div):not(:last-child) {
+.section > *:not(:last-child) {
   margin-bottom: 10px;
 }
 
-.label:not(:last-child) {
-  margin-bottom: 10px;
-}
-
-.label > * {
+.section > *, .label > * {
   vertical-align: middle;
 }
 
-.container_refresh {
-  position: sticky;
-  position: -webkit-sticky;
-  top: 0px;
-  padding: 20px 0px 20px;
-  background-color: #ffffff;
+#card_route > div {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+}
+
+#card_eta {
+  height: 100%;
+  overflow-y: auto;
 }
 
 button, input[type="text"], select {
   width: 100%;
   height: 2.25rem;
   padding: 0.35rem;
-  box-sizing: border-box;
   border: 2px solid #999999;
   border-radius: 4px;
   font-size: 0.85rem;
@@ -94,6 +109,8 @@ button, input[type="text"], select {
 }
 
 button {
+  height: fit-content;
+  min-height: 2.25rem;
   transition: 0.5s background-color;  
 }
 
