@@ -1,22 +1,19 @@
+@media only screen and (max-width: 768px) {
+  .settings > div {
+    width: 100%;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .settings > div {
+    width: 50%;
+  }
+}
+
 @media only screen and (max-width: 1024px) {
   .screen {
-    height: fit-content;
-    min-height: 100%;
-  }
-  
-  .card:not(:last-child) {
-    padding: 20px 20px 0px 20px;
-  }
-
-  .card:last-child {
-    padding: 20px;
-  }
-
-  #card_route {
-    height: 100vh;
-  }
-
-  #card_route > div {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
     height: 100%;
   }
 }
@@ -24,24 +21,18 @@
 @media only screen and (min-width: 1024px) {
   .screen {
     display: grid;
-    height: 100%;
-    grid-template-columns: 375px 1fr;
-  }
-  
-  .card:not(:last-child) {
-    padding: 20px 0px 20px 20px;
-  }
-  
-  .card {
-    height: 100vh;
-  }
-
-  .card > div {
+    grid-template-columns: 3fr 7fr;
+    grid-template-rows: 1fr auto;
     height: 100%;
   }
 
-  #card_eta {
-    min-height: 100px;
+  .settings > div {
+    width: 50%;
+  }
+
+  .eta {
+    grid-column: 2;
+    grid-row: 1 / span 2;
   }
 }
 
@@ -52,7 +43,7 @@ html, body {
 
 body {
   margin: 0px;
-  background-color: #dcdcdc;
+  line-height: 1.5rem;
   
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   
@@ -61,74 +52,38 @@ body {
   user-select: none;
 }
 
-.card:last-child, .card > div {
-  padding: 20px;
-}
+/* Global */
 
-.card > div {
-  border: 2px solid #999999;
-  border-radius: 16px;
-  background-color: #ffffff;
-  overflow-y: auto;
-}
-
-div, button, input[type="text"], select {
-  box-sizing: border-box;
-}
-
-.section:not(:last-child) {
-  margin-bottom: 20px;
-}
-
-.section > *:not(:last-child) {
-  margin-bottom: 10px;
-}
-
-.section > *, .label > * {
+.icon_label > * {
   vertical-align: middle;
 }
 
-#card_route > div {
-  display: grid;
-  grid-template-rows: auto auto 1fr;
+.icon_label > span.material-symbols-outlined {
+  margin-right: 4px;
 }
 
-#card_eta {
-  height: 100%;
-  overflow-y: auto;
+* {
+  box-sizing: border-box;
 }
 
-button, input[type="text"], select {
-  width: 100%;
+button, input, select {
   height: 2.25rem;
   padding: 0.35rem;
-  border: 2px solid #999999;
-  border-radius: 4px;
+  border-radius: 10px;
+  background: #ffffff;
   font-size: 0.85rem;
-  font-weight: 600;
 }
 
 button {
-  height: fit-content;
-  min-height: 2.25rem;
-  transition: 0.5s background-color;  
-}
-
-button:active {
-  background-color: #d9d9d9;
+  transition: 0.5s background;  
 }
 
 button > * {
   vertical-align: middle;
 }
 
-button > span.material-symbols-outlined {
-  font-size: 1.15rem;
-}
-
-input[type="checkbox"] {
-  width: 1.15rem;
-  height: 1.15rem;
+button:active {
+  background: #d9d9d9;
 }
 
 input[type="text"] {
@@ -136,38 +91,205 @@ input[type="text"] {
   padding-right: 0.5rem;
 }
 
-h3 {
-  margin: 20px 0px;
-}
-
 span.material-symbols-outlined {
-  margin-right: 4px;
-  font-size: 24px;
+  font-size: 1.35rem;
 }
 
-table {
+button span.material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+/* Table */
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #999999;
+  border-right: 1px solid #999999;
+}
+
+td > * {
+  vertical-align: middle;
+}
+
+.normal {
+  background: #ffffff;
+}
+
+.scheduled {
+  background: #f2f2f2;
+}
+
+.arriving {
+  background: #ffff80;
+}
+
+.no_departure {
+  color: #666666;
+}
+
+.no_departure span.material-symbols-outlined {
+  margin: 0px 5px 0px 0px;
+  padding: 0px;
+  color: #666666;
+}
+
+tr:first-child > td {
+  border-top: 1px solid #999999;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  font-weight: 500;
+}
+
+tr > td:first-child {
+  border-left: 1px solid #999999;
+}
+
+tr:last-child > td:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+tr:last-child > td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+/* Sections */
+
+.screen > div {
+  padding: 15px;
+}
+
+.screen > div:not(:last-child) {
+  border-bottom: 1px solid #999999;
+}
+
+.screen button, .screen input, .screen select {
+  border: none;
+}
+
+.screen input, .screen select {
   width: 100%;
-  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.screen button:active {
+  background: #a6a6a6;
+}
+
+.search, .bottom_bar {
+  background: #11254a;
+}
+
+.search div {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  background: #555555;
+}
+
+.search div:not(:last-child) {
+  margin-bottom: 15px;
+}
+
+.search input, select {
+  font-weight: 600;
+}
+
+.search span.material-symbols-outlined {
+  padding: 0px 10px;
+  color: #ffffff;
+}
+
+.eta {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.eta > * {
+  width: 100%;
+  border-spacing: 0px;
   table-layout: fixed;
 }
 
-table:not(:last-child) {
-  margin-bottom: 20px;
+.eta > *:not(:last-child) {
+  margin: 0px 0px 15px;
 }
 
-tr.scheduled {
-  background-color: #f2f2f2;
+.bottom_bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
 }
 
-tr.arriving {
-  background-color: #ffffe6;
+.bottom_bar div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-th, td {
-  padding: 8px;
-  border: 1px solid #999999;
+.bottom_bar button {
+  width: 2.25rem;
+  background: #555555;
 }
 
-th {
+.bottom_bar div > span {
   font-weight: 600;
+}
+
+.bottom_bar span {
+  color: #ffffff;
+}
+
+.bottom_bar div > span:not(:last-child) {
+  margin-right: 5px;
+}
+
+/* Settings Dialog */
+
+.settings {
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  padding: 50px;
+  background: rgba(240, 240, 240, 0.7);
+}
+
+.settings .icon_label {
+  margin-bottom: 5px;
+}
+
+.settings > div {
+  border-radius: 10px;
+  padding: 10px;
+  background: #ffffff;
+}
+
+.settings > div > div:first-child {
+  text-align: end;
+}
+
+.settings > div > div:not(:first-child) {
+  padding: 10px;
+}
+
+.settings button {
+  transition: 0.5s background-color;  
+}
+
+.settings button, .settings input, .settings select {
+  border: 2px solid #999999;
+  text-align: center;
+  font-weight: 600;
+}
+
+.settings button:not(.settings_close), .settings input, .settings select {
+  width: 100%;
+}
+
+.settings span.material-symbols-outlined {
+  font-size: 1.3rem;
 }
