@@ -2,8 +2,14 @@ var route, last_update, lang, show_scheduled = 1, timer, route_list, eta_data, s
 
 function create(type, text, append_to, ...attributes) {
   element = document.createElement(type);
-  append_to.append(element);
-  $(element).html(text);
+  
+  if (typeof text !== 'undefined') {
+    $(element).html(text);
+  }
+
+  if (typeof append_to !== 'undefined') {
+    append_to.append(element);
+  }
 
   if (typeof attributes !== 'undefined') {
     for (i in attributes) {
@@ -28,26 +34,95 @@ function auto_refresh(timeout) {
   }
 }
 
+function set_language() {
+
+  if (lang == 6) {
+    text = {
+      arriving: '即將到達',
+      departing: '即將開出',
+      delayed: '延遲 - ',
+      minute: '分 ',
+      second: '秒',
+      no_departure: '沒有即將到達之班次',
+      refreshing: '更新中...',
+      last_update: '最後更新: ', 
+      
+      current_language: '中文', 
+      language: '語言', 
+      scheduled_departures: '編定班次', 
+      visible: '顯示', 
+      hidden: '隱藏', 
+      auto_refresh: '自動更新'
+    };
+  } else {
+    text = {
+      arriving: 'Arriving',
+      departing: 'Departing',
+      delayed: 'Delayed - ',
+      minute: 'm ',
+      second: 's',
+      no_departure: 'No upcoming departure',
+      refreshing: 'Refreshing...',
+      last_update: 'Last updated: ', 
+      
+      current_language: 'English', 
+      language: 'Language', 
+      scheduled_departures: 'Scheduled departures', 
+      visible: 'Visible', 
+      hidden: 'Hidden', 
+      auto_refresh: 'Refresh automatically'
+    };
+  }
+
+  $('.icon_label > span:last-child').eq(0).html(text.language);
+  $('.icon_label > span:last-child').eq(1).html(text.scheduled_departures);
+  $('.icon_label > span:last-child').eq(2).html(text.auto_refresh);
+  
+  $('#lang > span:last-child').html(text.current_language);
+  if (show_scheduled) {
+    $('#show_scheduled > span:last-child').html(text.visible);
+  } else {
+    $('#show_scheduled > span:last-child').html(text.hidden);
+  }
+}
+
+function change_route() {
+  route = $('#route').val();
+  localStorage.setItem('route', route);
+  refresh_dir();
+  get_eta_data();
+  auto_refresh($('#auto_refresh').val());
+}
+
+function revert_route_change() {
+  if (route != null) {
+    if (localStorage.getItem('route') !== null) {
+      route = localStorage.getItem('route');
+    } else {
+      route = route_list[0];
+    }
+  }
+  $('#route').val(route);
+}
+
 function refresh_dir(direction) {
   stops_out = stops_data.filter((x) => {
-    return x[0] === route && x[1] === 'O';
+    return x[0] == route && x[1] == 'O';
   });
   term_out = stops_out[stops_out.length - 1];
 
-  $('#direction').html('');
-  $('#direction').append('<option value="O">' + term_out[lang] + '</option>');
+  $('#direction').html('<option value="O">' + term_out[lang] + '</option>');
 
-  let stop_next_index = stops_data.indexOf(term_out) + 1;
-  let stop_next = stops_data[stop_next_index];
+  let stop_next = stops_data[stops_data.indexOf(term_out) + 1];
 
   let condition = [
-    stop_next[0] === route,
-    stop_next[1] === 'I'
+    stop_next[0] == route,
+    stop_next[1] == 'I'
   ];
 
   if (condition.every(x => x)) {
     stops_in = stops_data.filter((x) => {
-      return x[0] === route && x[1] === 'I';
+      return x[0] == route && x[1] == 'I';
     });
 
     term_in = stops_in[stops_in.length - 1];
@@ -74,12 +149,8 @@ async function get_eta_data() {
     })
   };
 
-  if (lang == 6) {
-    $('.last_update > span ').text('更新中...');
-  } else {
-    $('.last_update > span ').text('Refreshing...');
-  }
-  
+  $('.last_update > span ').text(text.refreshing);
+
   response = await fetch(url, init);
   last_update = new Date();
 
@@ -99,29 +170,18 @@ function refresh_output() {
     stops = stops_in;
   }
 
-  if (lang == 6) {
-    $('.last_update > span ').text('最後更新: ' + last_update.toLocaleTimeString('en-GB'));
-  } else {
-    $('.last_update > span ').text('Last updated: ' + last_update.toLocaleTimeString('en-GB'));
-  }
-  
+  $('.last_update > span ').text(text.last_update + last_update.toLocaleTimeString('en-GB'));
   $('.eta').text('');
-  
+
   for (let stop_index = 0; stop_index < stops.length; stop_index++) {
-    table = document.createElement('table');
-    $('.eta').append(table);
+    table = create('table', undefined, $('.eta'));
+    stop_name = create('tr', create('td', stop_index + ' | ' + stops[stop_index][lang], undefined, ['colspan', '3']), table);
 
-    row = document.createElement('tr');
-    table.append(row);
-    create('td', stop_index + ' | ' + stops[stop_index][lang], row, ['colspan', '3']);
-
-    route_eta = eta_data['busStop'];
-
-    if (route_eta.length > 0) {
-      stop_eta = route_eta.filter((x) => { return x['busStopId'] === stops[stop_index][3] });
+    if (eta_data.busStop.length > 0) {
+      stop_eta = eta_data.busStop.filter((x) => { return x.busStopId === stops[stop_index][3] });
 
       if (stop_eta.length > 0) {
-        stop_eta = stop_eta[0]['bus'];
+        stop_eta = stop_eta[0].bus;
       }
     } else {
       stop_eta = [];
@@ -130,108 +190,63 @@ function refresh_output() {
     for (let i = 0; i < stop_eta.length; i++) {
       let condition = [
         show_scheduled,
-        stop_eta[i]['isScheduled'] == '0'
+        stop_eta[i].isScheduled == '0'
       ];
 
       if (condition.some(x => x)) {
         let condition = [
           stop_index < stops.length - 1,
-          stop_eta[i]['isScheduled'] == '1'
+          stop_eta[i].isScheduled == '1'
         ]
 
         if (condition.every(x => x)) {
-          secs = parseInt(stop_eta[i]['departureTimeInSecond']);
+          secs = parseInt(stop_eta[i].departureTimeInSecond);
+          zero_second = text.departing;
         } else {
-          secs = parseInt(stop_eta[i]['arrivalTimeInSecond']);
+          secs = parseInt(stop_eta[i].arrivalTimeInSecond);
+          zero_second = text.arriving;
         }
 
         time = new Date(last_update);
         time.setSeconds(time.getSeconds() + secs);
 
-        if (secs > 59) {
-          if (lang == 6) {
-            eta = Math.floor(secs / 60).toString() + '分 ' + (secs % 60).toString() + '秒';
-          } else {
-            eta = Math.floor(secs / 60).toString() + 'm ' + (secs % 60).toString() + 's';
-          }
-        } else if (secs > 0) {
-          if (lang == 6) {
-            eta = secs + '秒';
-          } else {
-            eta = secs + 's';
-          }
+        if (stop_eta[i]['busRemark'] == '受交通擠塞影響，到站時間可能稍為延遲') {
+          eta = text.delayed;
         } else {
-          eta = '-';
+          eta = '';
         }
 
-        row = document.createElement('tr');
-        table.append(row);
+        if (secs > 59) {
+          eta += Math.floor(secs / 60).toString() + text.minute + (secs % 60).toString() + text.second;
+        } else if (secs > 0) {
+          eta += secs + text.second;
+        } else {
+          eta += zero_second;
+        }
+
+        eta_info = create('tr', undefined, table);
 
         if (stop_eta[i]['isScheduled'] == '1') {
-          row.setAttribute('class', 'scheduled');
+          eta_info.setAttribute('class', 'scheduled');
         } else if (secs < 179) {
-          row.setAttribute('class', 'arriving');
+          eta_info.setAttribute('class', 'arriving');
         } else {
-          row.setAttribute('class', 'normal');
+          eta_info.removeAttribute('class');
         }
 
-        create('td', stop_eta[i]['busId'], row);
-        create('td', time.toLocaleTimeString('en-GB'), row);
-        create('td', eta, row);
+        create('td', stop_eta[i]['busId'], eta_info);
+        create('td', time.toLocaleTimeString('en-GB'), eta_info);
+        create('td', eta, eta_info);
       }
     }
 
     if (table.rows.length == 1) {
-      row = document.createElement('tr');
-      table.append(row);
-      row.setAttribute('class', 'no_departure');
-      
-      if (lang == 6) {
-        no_dep_text = '<span class="material-symbols-outlined">error</span><span>沒有即將到達之班次</span>';
-      } else {
-        no_dep_text = '<span class="material-symbols-outlined">error</span><span>No upcoming departure</span>';
-      }
-      
-      create('td', no_dep_text, row, ['colspan', '3']);
+      no_departure = create('tr', create('td', '<span class="material-symbols-outlined">error</span>' + text.no_departure, undefined, ['colspan', '3']), table, ['class', 'no_departure']);
     }
   };
-
-  if ($('#show_scheduled').is(':disabled')) {
-    $('#auto_refresh').prop('disabled', 0);
-    $('#stop_lang').prop('disabled', 0);
-    $('#show_scheduled').prop('disabled', 0);
-    $('#refresh').prop('disabled', 0);
-    $('.eta').show();
-  }
-}
-
-function change_route() {
-  route = $('#route').val();
-  localStorage.setItem('route', route);
-  refresh_dir();
-  get_eta_data();
-  auto_refresh($('#auto_refresh').val());
-}
-
-function revert_route_change() {
-  if (route != null) {
-    if (localStorage.getItem('route') !== null) {
-      route = localStorage.getItem('route');
-    } else {
-      route = route_list[0];
-    }
-  }
-  $('#route').val(route);
 }
 
 $(async function() {
-  $('#route').prop('disabled', 1);
-  $('#direction').prop('disabled', 1);
-  $('#stop_lang').prop('disabled', 1);
-  $('#show_scheduled').prop('disabled', 1);
-  $('#auto_refresh').prop('disabled', 1);
-  $('#refresh').prop('disabled', 1);
-
   route_list = [];
   response = await fetch('mtr_bus_stops.csv');
   text = await response.text();
@@ -253,21 +268,18 @@ $(async function() {
 
   if (localStorage.getItem('lang') !== null) {
     lang = localStorage.getItem('lang');
-
-    if (lang == 6) {
-      $('#stop_lang > span:last-child').html('中文');
-    }
   } else {
     lang = 7;
   }
+  set_language();
 
   $('#route').val(route);
   $('#route').prop('disabled', 0);
-  $('.card:not(#card_eta)').show();
   refresh_dir();
   $('#direction').prop('disabled', 0);
   get_eta_data();
   auto_refresh($('#auto_refresh').val());
+  $('#refresh, #lang, #show_scheduled').prop('disabled', 0);
 });
 
 $('#route').on('change', () => {
@@ -303,20 +315,15 @@ $('#auto_refresh').on('change', () => {
   auto_refresh($('#auto_refresh').val());
 });
 
-$('#stop_lang').click(() => {
+$('#lang').click(() => {
   if (lang == 6) {
     lang = 7;
   } else {
     lang = 6;
   }
-
-  if (lang == 6) {
-    $('#stop_lang > span:last-child').html('中文');
-  } else {
-    $('#stop_lang > span:last-child').html('English');
-  }
-
   localStorage.setItem('lang', lang);
+
+  set_language();
   refresh_dir($('#direction').val());
   refresh_output();
 });
@@ -326,18 +333,22 @@ $('#show_scheduled').click(() => {
 
   if (show_scheduled) {
     $('#show_scheduled > span:first-child').html('visibility');
-    $('#show_scheduled > span:last-child').html('Visible');
+    $('#show_scheduled > span:last-child').html(text.visible);
   } else {
     $('#show_scheduled > span:first-child').html('visibility_off');
-    $('#show_scheduled > span:last-child').html('Hidden');
+    $('#show_scheduled > span:last-child').html(text.hidden);
   }
 
   refresh_output();
 });
 
 $('#refresh').click(() => {
+  $('#refresh').prop('disabled', 1);
   auto_refresh($('#auto_refresh').val());
   get_eta_data();
+  setTimeout(() => {
+    $('#refresh').prop('disabled', 0);
+  }, 1000);
 });
 
 $('.settings_open').click(() => {

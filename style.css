@@ -21,7 +21,7 @@
 @media only screen and (min-width: 1024px) {
   .screen {
     display: grid;
-    grid-template-columns: 3fr 7fr;
+    grid-template-columns: 1fr 3fr;
     grid-template-rows: 1fr auto;
     height: 100%;
   }
@@ -70,7 +70,6 @@ button, input, select {
   height: 2.25rem;
   padding: 0.35rem;
   border-radius: 10px;
-  background: #ffffff;
   font-size: 0.85rem;
 }
 
@@ -109,10 +108,6 @@ td {
 
 td > * {
   vertical-align: middle;
-}
-
-.normal {
-  background: #ffffff;
 }
 
 .scheduled {
@@ -164,6 +159,7 @@ tr:last-child > td:last-child {
 
 .screen button, .screen input, .screen select {
   border: none;
+  background: #ffffff;
 }
 
 .screen input, .screen select {
@@ -171,16 +167,13 @@ tr:last-child > td:last-child {
   font-size: 0.9rem;
 }
 
-.screen button:active {
-  background: #a6a6a6;
-}
-
 .search, .bottom_bar {
   background: #11254a;
 }
 
 .search div {
-  display: flex;
+  display: grid;
+  grid-template-columns: 40px 1fr;
   align-items: center;
   border-radius: 8px;
   background: #555555;
@@ -190,12 +183,14 @@ tr:last-child > td:last-child {
   margin-bottom: 15px;
 }
 
-.search input, select {
+.search input, .search select {
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
 .search span.material-symbols-outlined {
-  padding: 0px 10px;
+  display: block;
+  text-align: center;
   color: #ffffff;
 }
 
@@ -225,21 +220,26 @@ tr:last-child > td:last-child {
   align-items: center;
 }
 
+.bottom_bar div > span {
+  text-align: center;
+  font-weight: 600;
+}
+
+.bottom_bar div > span:not(:last-child) {
+  margin-right: 5px;
+}
+
 .bottom_bar button {
   width: 2.25rem;
   background: #555555;
 }
 
-.bottom_bar div > span {
-  font-weight: 600;
+.bottom_bar button:active {
+  background: #a6a6a6;
 }
 
 .bottom_bar span {
   color: #ffffff;
-}
-
-.bottom_bar div > span:not(:last-child) {
-  margin-right: 5px;
 }
 
 /* Settings Dialog */

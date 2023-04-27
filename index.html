@@ -15,11 +15,11 @@
     <div class="search">
       <div>
         <span class="material-symbols-outlined">directions_bus</span>
-        <input type="text" id="route" list="opt_route" maxlength="4" placeholder="MTR Bus Route..." disabled></input>
+        <input type="text" id="route" list="opt_route" maxlength="4" disabled></input>
       </div>
       <div>
         <span class="material-symbols-outlined">route</span>
-        <select id="direction"></select>
+        <select id="direction" disabled></select>
       </div>
     </div>
     <div class="eta"></div>
@@ -33,7 +33,7 @@
         <span></span>
       </div>
       <div>
-        <button id="refresh">
+        <button id="refresh" disabled>
           <span class="material-symbols-outlined">refresh</span>
         </button>
       </div>
@@ -52,7 +52,7 @@
           <span class="material-symbols-outlined">translate</span>
           <span>Language of stops</span>
         </div>
-        <button id="stop_lang">
+        <button id="lang" disabled>
           <span>English</span>
         </button>
       </div>
@@ -61,7 +61,7 @@
           <span class="material-symbols-outlined">calendar_today</span>
           <span>Scheduled departures</span>
         </div>
-        <button id="show_scheduled">
+        <button id="show_scheduled" disabled>
           <span class="material-symbols-outlined">visibility</span>
           <span>Visible</span>
         </button>
@@ -69,9 +69,7 @@
       <div>
         <div class="icon_label">
           <span class="material-symbols-outlined">autorenew</span>
-          <label for="auto_refresh">
-            <span>Refresh automatically</span>
-          </label>
+          <span>Refresh automatically</span>
         </div>
         <select id="auto_refresh">
           <option value="0">Disabled</option>
