@@ -1,13 +1,13 @@
 var route, last_update, lang, show_scheduled = 1, timer, route_list, eta_data, stops_data, term_out, term_in;
 
 var icon = {
-  error: '<span class="material-symbols-outlined">error</span>', 
+  error: '<span class="material-symbols-outlined">error</span>',
   warning: '<span class="material-symbols-outlined">warning</span>'
 }
 
 function create(type, text, append_to, ...attributes) {
   element = document.createElement(type);
-  
+
   if (typeof text !== 'undefined') {
     $(element).html(text);
   }
@@ -42,40 +42,40 @@ function auto_refresh(timeout) {
 function set_language() {
   if (lang == 6) {
     text = {
-      arriving: '即將到達',
-      departing: '即將開出',
-      scheduled: '編定 - ', 
-      delayed: '延遲 - ',
+      arriving: '已到達',
+      departing: '已開出',
+      scheduled: '編定',
+      delayed: '延遲',
       minute: '分 ',
       second: '秒',
       no_departure: '沒有即將到達之班次',
       refreshing: '更新中...',
-      last_update: '最後更新: ', 
-      
-      current_language: '中文', 
-      language: '語言', 
-      scheduled_departures: '編定班次', 
-      visible: '顯示', 
-      hidden: '隱藏', 
+      last_update: '最後更新: ',
+
+      current_language: '中文',
+      language: '語言',
+      scheduled_departures: '編定班次',
+      visible: '顯示',
+      hidden: '隱藏',
       auto_refresh: '自動更新'
     };
   } else {
     text = {
-      arriving: 'Arriving', 
-      departing: 'Departing', 
-      scheduled: 'Scheduled - ', 
-      delayed: 'Delayed - ', 
-      minute: 'm ', 
-      second: 's', 
-      no_departure: 'No upcoming departure', 
-      refreshing: 'Refreshing...', 
-      last_update: 'Last updated: ', 
-      
-      current_language: 'English', 
-      language: 'Language', 
-      scheduled_departures: 'Scheduled departures', 
-      visible: 'Visible', 
-      hidden: 'Hidden', 
+      arriving: 'Arriving',
+      departing: 'Departing',
+      scheduled: 'Scheduled',
+      delayed: 'Delayed',
+      minute: 'm ',
+      second: 's',
+      no_departure: 'No upcoming departure',
+      refreshing: 'Refreshing...',
+      last_update: 'Last updated: ',
+
+      current_language: 'English',
+      language: 'Language',
+      scheduled_departures: 'Scheduled departures',
+      visible: 'Visible',
+      hidden: 'Hidden',
       auto_refresh: 'Refresh automatically'
     };
   }
@@ -83,7 +83,7 @@ function set_language() {
   $('.icon_label > span:last-child').eq(0).html(text.language);
   $('.icon_label > span:last-child').eq(1).html(text.scheduled_departures);
   $('.icon_label > span:last-child').eq(2).html(text.auto_refresh);
-  
+
   $('#lang > span:last-child').html(text.current_language);
   if (show_scheduled) {
     $('#show_scheduled > span:last-child').html(text.visible);
@@ -170,25 +170,23 @@ async function get_eta_data() {
 }
 
 function refresh_output() {
+  $('.last_update > span ').text(text.last_update + last_update.toLocaleTimeString('en-GB'));
+
   if ($('#direction').val() === 'O') {
     stops = stops_out;
   } else {
     stops = stops_in;
   }
 
-  $('.last_update > span ').text(text.last_update + last_update.toLocaleTimeString('en-GB'));
   $('.eta').text('');
 
   for (let stop_index = 0; stop_index < stops.length; stop_index++) {
-    table = create('table', undefined, $('.eta'));
-    stop_name = create('tr', create('td', stop_index + ' | ' + stops[stop_index][lang], undefined, ['colspan', '3']), table);
-
     if (eta_data.busStop.length > 0) {
       stop_eta = eta_data.busStop.filter((x) => { return x.busStopId === stops[stop_index][3] });
 
       if (stop_eta.length > 0) {
         stop_eta = stop_eta[0].bus;
-        
+
         if (!show_scheduled) {
           stop_eta = stop_eta.filter((x) => { return x.isScheduled == '0' });
         }
@@ -196,6 +194,10 @@ function refresh_output() {
     } else {
       stop_eta = [];
     }
+
+    stop_section = create('div', undefined, $('.eta'), ['class', 'stop_section']);
+    stop_name = create('h3', stop_index + ' • ' + stops[stop_index][lang], stop_section);
+    stop_departures = create('div', undefined, stop_section);
 
     for (let i = 0; i < stop_eta.length; i++) {
       let condition = [
@@ -205,49 +207,43 @@ function refresh_output() {
 
       if (condition.every(x => x)) {
         secs = parseInt(stop_eta[i].departureTimeInSecond);
-        zero_second = text.departing;
       } else {
         secs = parseInt(stop_eta[i].arrivalTimeInSecond);
-        zero_second = text.arriving;
       }
 
       time = new Date(last_update);
       time.setSeconds(time.getSeconds() + secs);
 
-      eta = '<span>';
+      if (secs > 59) {
+        eta_text = Math.floor(secs / 60).toString() + text.minute + (secs % 60).toString() + text.second;
+      } else if (secs > 0) {
+        eta_text = secs + text.second;
+      } else if (condition.every(x => x)) {
+        eta_text = text.departing;
+      } else {
+        eta_text = text.arriving;
+      }
+
+      departure = create('div', undefined, stop_departures, ['class', 'departure']);
+      create('span', eta_text, departure, ['class', 'eta_text']);
+      create('span', time.toLocaleTimeString('en-GB'), departure);
+      create('span', '🚌 ' + stop_eta[i]['busId'], departure);
 
       if (stop_eta[i]['busRemark'] == '受交通擠塞影響，到站時間可能稍為延遲') {
-        eta += icon.warning + text.delayed;
-      } else if (stop_eta[i].isScheduled == '1') {
-        eta += icon.error + text.scheduled;
-      } 
-
-      if (secs > 59) {
-        eta += Math.floor(secs / 60).toString() + text.minute + (secs % 60).toString() + text.second;
-      } else if (secs > 0) {
-        eta += secs + text.second;
-      } else {
-        eta += zero_second;
+        create('span', text.delayed, departure, ['class', 'chip chip_delayed']);
       }
-
-      eta += '</span>';
-      eta_info = create('tr', undefined, table);
 
       if (stop_eta[i].isScheduled == '1') {
-        eta_info.setAttribute('class', 'scheduled');
-      } else if (secs < 179) {
-        eta_info.setAttribute('class', 'arriving');
-      } else {
-        eta_info.removeAttribute('class');
+        create('span', text.scheduled, departure, ['class', 'chip chip_scheduled']);
       }
 
-      create('td', stop_eta[i]['busId'], eta_info);
-      create('td', time.toLocaleTimeString('en-GB'), eta_info);
-      create('td', eta, eta_info);
+      if (secs < 179) {
+        $(departure).addClass('arriving');
+      }
     }
 
-    if (table.rows.length == 1) {
-      no_departure = create('tr', create('td', icon.error + text.no_departure, undefined, ['colspan', '3']), table, ['class', 'no_departure']);
+    if (stop_eta.length == 0) {
+      create('span', icon.error + text.no_departure, stop_departures, ['class', 'no_departure']);
     }
   };
 }
