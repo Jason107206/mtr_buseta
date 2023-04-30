@@ -25,10 +25,10 @@ function create(type, text, append_to, ...attributes) {
   return element;
 }
 
-function auto_refresh(timeout) {
-  if (timer != null) {
+function auto_refresh(timeout = $('#auto_refresh').val()) {
+  if (typeof timer !== 'undefined') {
     clearTimeout(timer);
-    timer = null;
+    timer = undefined;
   }
 
   if (timeout != 0) {
@@ -55,8 +55,8 @@ function set_language() {
       current_language: '中文',
       language: '語言',
       scheduled_departures: '編定班次',
-      visible: '顯示',
-      hidden: '隱藏',
+      visible: '顯示編定班次',
+      hidden: '隱藏編定班次',
       auto_refresh: '自動更新'
     };
   } else {
@@ -181,6 +181,10 @@ function refresh_output() {
   $('.eta').text('');
 
   for (let stop_index = 0; stop_index < stops.length; stop_index++) {
+    stop_section = create('div', undefined, $('.eta'), ['class', 'stop_section']);
+    stop_name = create('h3', stop_index + ' • ' + stops[stop_index][lang], stop_section);
+    stop_departures = create('div', undefined, stop_section);
+    
     if (eta_data.busStop.length > 0) {
       stop_eta = eta_data.busStop.filter((x) => { return x.busStopId === stops[stop_index][3] });
 
@@ -190,14 +194,14 @@ function refresh_output() {
         if (!show_scheduled) {
           stop_eta = stop_eta.filter((x) => { return x.isScheduled == '0' });
         }
+      } else {
+        create('span', icon.error + text.no_departure, stop_departures, ['class', 'no_departure']);
+        continue;
       }
     } else {
-      stop_eta = [];
+      create('span', icon.error + text.no_departure, stop_departures, ['class', 'no_departure']);
+      continue;
     }
-
-    stop_section = create('div', undefined, $('.eta'), ['class', 'stop_section']);
-    stop_name = create('h3', stop_index + ' • ' + stops[stop_index][lang], stop_section);
-    stop_departures = create('div', undefined, stop_section);
 
     for (let i = 0; i < stop_eta.length; i++) {
       let condition = [
@@ -225,6 +229,11 @@ function refresh_output() {
       }
 
       departure = create('div', undefined, stop_departures, ['class', 'departure']);
+
+      if (secs < 179) {
+        $(departure).addClass('arriving');
+      }
+      
       create('span', eta_text, departure, ['class', 'eta_text']);
       create('span', time.toLocaleTimeString('en-GB'), departure);
       create('span', '🚌 ' + stop_eta[i]['busId'], departure);
@@ -236,14 +245,6 @@ function refresh_output() {
       if (stop_eta[i].isScheduled == '1') {
         create('span', text.scheduled, departure, ['class', 'chip chip_scheduled']);
       }
-
-      if (secs < 179) {
-        $(departure).addClass('arriving');
-      }
-    }
-
-    if (stop_eta.length == 0) {
-      create('span', icon.error + text.no_departure, stop_departures, ['class', 'no_departure']);
     }
   };
 }
@@ -280,7 +281,7 @@ $(async function() {
   refresh_dir();
   $('#direction').prop('disabled', 0);
   get_eta_data();
-  auto_refresh($('#auto_refresh').val());
+  auto_refresh();
   $('#refresh, #lang, #show_scheduled').prop('disabled', 0);
 });
 
@@ -309,12 +310,12 @@ $('#route').on('keydown', (event) => {
 });
 
 $('#direction').on('change', () => {
-  auto_refresh($('#auto_refresh').val());
   get_eta_data();
+  auto_refresh();
 });
 
 $('#auto_refresh').on('change', () => {
-  auto_refresh($('#auto_refresh').val());
+  auto_refresh();
 });
 
 $('#lang').click(() => {
@@ -324,7 +325,6 @@ $('#lang').click(() => {
     lang = 6;
   }
   localStorage.setItem('lang', lang);
-
   set_language();
   refresh_dir($('#direction').val());
   refresh_output();
@@ -334,10 +334,8 @@ $('#show_scheduled').click(() => {
   show_scheduled = !show_scheduled;
 
   if (show_scheduled) {
-    $('#show_scheduled > span:first-child').html('visibility');
     $('#show_scheduled > span:last-child').html(text.visible);
   } else {
-    $('#show_scheduled > span:first-child').html('visibility_off');
     $('#show_scheduled > span:last-child').html(text.hidden);
   }
 
@@ -346,8 +344,9 @@ $('#show_scheduled').click(() => {
 
 $('#refresh').click(() => {
   $('#refresh').prop('disabled', 1);
-  auto_refresh($('#auto_refresh').val());
+  auto_refresh(0);
   get_eta_data();
+  auto_refresh();
   setTimeout(() => {
     $('#refresh').prop('disabled', 0);
   }, 1000);
