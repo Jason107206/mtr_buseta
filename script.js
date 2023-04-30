@@ -55,8 +55,8 @@ function set_language() {
       current_language: '中文',
       language: '語言',
       scheduled_departures: '編定班次',
-      visible: '顯示編定班次',
-      hidden: '隱藏編定班次',
+      visible: '顯示',
+      hidden: '隱藏',
       auto_refresh: '自動更新'
     };
   } else {
