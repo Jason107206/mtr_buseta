@@ -195,10 +195,13 @@ function refresh_output() {
           stop_eta = stop_eta.filter((x) => { return x.isScheduled == '0' });
         }
       } else {
-        create('span', icon.error + text.no_departure, stop_departures, ['class', 'no_departure']);
-        continue;
+        stop_eta = [];
       }
     } else {
+      stop_eta = [];
+    }
+
+    if (stop_eta.length == 0) {
       create('span', icon.error + text.no_departure, stop_departures, ['class', 'no_departure']);
       continue;
     }
