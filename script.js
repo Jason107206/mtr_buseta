@@ -184,21 +184,23 @@ function refresh_output() {
     stop_section = create('div', undefined, $('.eta'), ['class', 'stop_section']);
     stop_name = create('h3', stop_index + ' • ' + stops[stop_index][lang], stop_section);
     stop_departures = create('div', undefined, stop_section);
-    
-    if (eta_data.busStop.length > 0) {
-      stop_eta = eta_data.busStop.filter((x) => { return x.busStopId === stops[stop_index][3] });
 
-      if (stop_eta.length > 0) {
-        stop_eta = stop_eta[0].bus;
-
-        if (!show_scheduled) {
-          stop_eta = stop_eta.filter((x) => { return x.isScheduled == '0' });
-        }
-      } else {
-        stop_eta = [];
-      }
+    if (eta_data.hasOwnProperty('busStop')) {
+      stop_eta = eta_data.busStop;
     } else {
       stop_eta = [];
+    }
+    
+    if (stop_eta.length > 0) {
+      stop_eta = eta_data.busStop.filter((x) => { return x.busStopId === stops[stop_index][3] });
+    }
+
+    if (stop_eta.length > 0) {
+      stop_eta = stop_eta[0].bus;
+
+      if (!show_scheduled) {
+        stop_eta = stop_eta.filter((x) => { return x.isScheduled == '0' });
+      }
     }
 
     if (stop_eta.length == 0) {
