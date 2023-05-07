@@ -175,6 +175,8 @@ button span.material-symbols-outlined {
 }
 
 .no_departure {
+  font-size: 0.945rem;
+  font-weight: 500;
   color: #333333;
 }
 
