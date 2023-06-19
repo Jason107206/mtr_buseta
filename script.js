@@ -1,4 +1,8 @@
-var route, last_update, lang, show_scheduled = 1, timer, route_list, eta_data, stops_data, term_out, term_in;
+var route, last_update, route_list, eta_data, stops_data, term_out, term_in;
+var direction = 'O';
+var isScheduledDepartures = 1;
+var languageCode;
+var refreshInterval = 30, refreshTimer;
 
 var icon = {
   error: '<span class="material-symbols-outlined">error</span>',
@@ -25,22 +29,26 @@ function create(type, text, append_to, ...attributes) {
   return element;
 }
 
-function auto_refresh(timeout = $('#auto_refresh').val()) {
-  if (typeof timer !== 'undefined') {
-    clearTimeout(timer);
-    timer = undefined;
+function clearRefreshTimer() {
+  clearTimeout(refreshTimer);
+  refreshTimer = undefined;
+}
+
+function setRefreshTimer() {
+  if (typeof refreshTimer !== 'undefined') {
+    clearRefreshTimer();
   }
 
-  if (timeout != 0) {
-    timer = setTimeout(() => {
+  if (refreshInterval > 0) {
+    refreshTimer = setTimeout(() => {
       get_eta_data();
-      auto_refresh(timeout);
-    }, timeout * 1000);
+      setRefreshTimer();
+    }, refreshInterval * 1000);
   }
 }
 
-function set_language() {
-  if (lang == 6) {
+function initiateLanguage() {
+  if (languageCode == 6) {
     text = {
       arriving: '已到達',
       departing: '已開出',
@@ -57,7 +65,8 @@ function set_language() {
       scheduled_departures: '編定班次',
       visible: '顯示',
       hidden: '隱藏',
-      auto_refresh: '自動更新'
+      auto_refresh: '自動更新', 
+      disabled: '已停用'
     };
   } else {
     text = {
@@ -76,19 +85,27 @@ function set_language() {
       scheduled_departures: 'Scheduled departures',
       visible: 'Visible',
       hidden: 'Hidden',
-      auto_refresh: 'Refresh automatically'
+      auto_refresh: 'Refresh automatically', 
+      disabled: 'Disabled'
     };
   }
 
-  $('.icon_label > span:last-child').eq(0).html(text.language);
-  $('.icon_label > span:last-child').eq(1).html(text.scheduled_departures);
-  $('.icon_label > span:last-child').eq(2).html(text.auto_refresh);
+  $('.switchLanguage .title').html(text.language);
+  $('.toggleScheduledDepartures .title').html(text.scheduled_departures);
+  $('.switchRefreshInterval .title').html(text.auto_refresh);
 
-  $('#lang > span:last-child').html(text.current_language);
-  if (show_scheduled) {
-    $('#show_scheduled > span:last-child').html(text.visible);
+  $('#switchRefreshInterval option').eq(0).html(text.disabled);
+  $('#switchRefreshInterval option').eq(1).html('5 ' + text.second);
+  $('#switchRefreshInterval option').eq(2).html('10 ' + text.second);
+  $('#switchRefreshInterval option').eq(3).html('20 ' + text.second);
+  $('#switchRefreshInterval option').eq(4).html('30 ' + text.second);
+  $('#switchRefreshInterval option').eq(5).html('60 ' + text.second);
+
+  $('#switchLanguage > span:last-child').html(text.current_language);
+  if (isScheduledDepartures) {
+    $('#toggleScheduledDepartures > span:last-child').html(text.visible);
   } else {
-    $('#show_scheduled > span:last-child').html(text.hidden);
+    $('#toggleScheduledDepartures > span:last-child').html(text.hidden);
   }
 }
 
@@ -97,7 +114,7 @@ function change_route() {
   localStorage.setItem('route', route);
   refresh_dir();
   get_eta_data();
-  auto_refresh($('#auto_refresh').val());
+  setRefreshTimer();
 }
 
 function revert_route_change() {
@@ -111,13 +128,11 @@ function revert_route_change() {
   $('#route').val(route);
 }
 
-function refresh_dir(direction) {
+function refresh_dir() {
   stops_out = stops_data.filter((x) => {
     return x[0] == route && x[1] == 'O';
   });
   term_out = stops_out[stops_out.length - 1];
-
-  $('#direction').html('<option value="O">' + term_out[lang] + '</option>');
 
   let stop_next = stops_data[stops_data.indexOf(term_out) + 1];
 
@@ -132,13 +147,10 @@ function refresh_dir(direction) {
     });
 
     term_in = stops_in[stops_in.length - 1];
-    $('#direction').append('<option value="I">' + term_in[lang] + '</option>');
+    $('#switchDirection').prop('disabled', 0)
   } else {
     term_in = undefined;
-  }
-
-  if (typeof direction !== 'undefined') {
-    $('#direction').val(direction);
+    $('#switchDirection').prop('disabled', 1)
   }
 }
 
@@ -155,7 +167,7 @@ async function get_eta_data() {
     })
   };
 
-  $('.last_update > span ').text(text.refreshing);
+  $('#lastUpdate').text(text.refreshing);
 
   response = await fetch(url, init);
   last_update = new Date();
@@ -170,11 +182,13 @@ async function get_eta_data() {
 }
 
 function refresh_output() {
-  $('.last_update > span ').text(text.last_update + last_update.toLocaleTimeString('en-GB'));
+  $('#lastUpdate').text(text.last_update + last_update.toLocaleTimeString('en-GB'));
 
-  if ($('#direction').val() === 'O') {
+  if (direction == 'O') {
+    $('#direction').html(term_out[languageCode]);
     stops = stops_out;
   } else {
+    $('#direction').html(term_in[languageCode]);
     stops = stops_in;
   }
 
@@ -182,7 +196,7 @@ function refresh_output() {
 
   for (let stop_index = 0; stop_index < stops.length; stop_index++) {
     stop_section = create('div', undefined, $('.eta'), ['class', 'stop_section']);
-    stop_name = create('h3', stop_index + ' • ' + stops[stop_index][lang], stop_section);
+    stop_name = create('h3', stop_index + ' • ' + stops[stop_index][languageCode], stop_section);
     stop_departures = create('div', undefined, stop_section);
 
     if (eta_data.hasOwnProperty('busStop')) {
@@ -198,7 +212,7 @@ function refresh_output() {
     if (stop_eta.length > 0) {
       stop_eta = stop_eta[0].bus;
 
-      if (!show_scheduled) {
+      if (!isScheduledDepartures) {
         stop_eta = stop_eta.filter((x) => { return x.isScheduled == '0' });
       }
     }
@@ -254,7 +268,7 @@ function refresh_output() {
   };
 }
 
-$(async function() {
+$(document).ready(async function() {
   route_list = [];
   response = await fetch('mtr_bus_stops.csv');
   text = await response.text();
@@ -274,20 +288,17 @@ $(async function() {
     route = route_list[0];
   }
 
-  if (localStorage.getItem('lang') !== null) {
-    lang = localStorage.getItem('lang');
+  if (localStorage.getItem('languageCode') !== null) {
+    languageCode = localStorage.getItem('languageCode');
   } else {
-    lang = 7;
+    languageCode = 7;
   }
-  set_language();
+  initiateLanguage();
 
-  $('#route').val(route);
-  $('#route').prop('disabled', 0);
+  $('#route').val(route); 
   refresh_dir();
-  $('#direction').prop('disabled', 0);
   get_eta_data();
-  auto_refresh();
-  $('#refresh, #lang, #show_scheduled').prop('disabled', 0);
+  setRefreshTimer();
 });
 
 $('#route').on('change', () => {
@@ -314,47 +325,29 @@ $('#route').on('keydown', (event) => {
   }
 });
 
-$('#direction').on('change', () => {
-  get_eta_data();
-  auto_refresh();
-});
-
-$('#auto_refresh').on('change', () => {
-  auto_refresh();
-});
-
-$('#lang').click(() => {
-  if (lang == 6) {
-    lang = 7;
-  } else {
-    lang = 6;
-  }
-  localStorage.setItem('lang', lang);
-  set_language();
-  refresh_dir($('#direction').val());
-  refresh_output();
-});
-
-$('#show_scheduled').click(() => {
-  show_scheduled = !show_scheduled;
-
-  if (show_scheduled) {
-    $('#show_scheduled > span:last-child').html(text.visible);
-  } else {
-    $('#show_scheduled > span:last-child').html(text.hidden);
-  }
-
-  refresh_output();
-});
-
 $('#refresh').click(() => {
   $('#refresh').prop('disabled', 1);
-  auto_refresh(0);
-  get_eta_data();
-  auto_refresh();
   setTimeout(() => {
     $('#refresh').prop('disabled', 0);
-  }, 1000);
+  }, 800);
+  
+  clearRefreshTimer();
+  get_eta_data();
+  setRefreshTimer();
+});
+
+$('#switchDirection').click(() => {
+  $('#switchDirection').prop('disabled', 1);
+  setTimeout(() => {
+    $('#switchDirection').prop('disabled', 0);
+  }, 800);
+  
+  if (direction == 'I') {
+    direction = 'O';
+  } else {
+    direction = 'I';
+  }
+  get_eta_data();
 });
 
 $('.settings_open').click(() => {
@@ -363,4 +356,34 @@ $('.settings_open').click(() => {
 
 $('.settings_close').click(() => {
   $('.settings').css('display', 'none');
+});
+
+$('#switchLanguage').click(() => {
+  if (languageCode == 6) {
+    languageCode = 7;
+  } else {
+    languageCode = 6;
+  }
+  localStorage.setItem('languageCode', languageCode);
+  initiateLanguage();
+  refresh_dir();
+  refresh_output();
+});
+
+$('#toggleScheduledDepartures').click(() => {
+  isScheduledDepartures = !isScheduledDepartures;
+
+  if (isScheduledDepartures) {
+    $('#toggleScheduledDepartures > span:last-child').html(text.visible);
+  } else {
+    $('#toggleScheduledDepartures > span:last-child').html(text.hidden);
+  }
+
+  refresh_output();
+});
+
+$('#switchRefreshInterval').on('change', () => {
+  clearRefreshTimer();
+  refreshInterval = $('#switchRefreshInterval').val();
+  setRefreshTimer();
 });

@@ -12,28 +12,37 @@
 
 <body>
   <div class="screen">
-    <div class="search">
-      <div>
-        <span class="material-symbols-outlined">directions_bus</span>
-        <input type="text" id="route" list="opt_route" maxlength="4" disabled></input>
+    <div class="searchBar">
+      <div class="routeSelection">
+        <div class="iconContainer">
+          <span class="material-symbols-outlined">directions_bus</span>
+        </div>
+        <input type="text" id="route" list="opt_route" maxlength="4"></input>
       </div>
-      <div>
-        <span class="material-symbols-outlined">route</span>
-        <select id="direction" disabled></select>
+      <div class="directionSelection">
+        <div class="iconContainer">
+          <span class="material-symbols-outlined">route</span>
+        </div>
+        <div class="directionContainer">
+          <label id="direction" for="switchDirection"></label>
+        </div>
+        <button id="switchDirection" class="iconButton">
+          <span class="material-symbols-outlined">swap_vert</span>
+        </button>
       </div>
     </div>
     <div class="eta"></div>
-    <div class="bottom_bar">
+    <div class="bottomBar">
       <div>
-        <button class="settings_open">
+        <button class="settings_open iconButton">
           <span class="material-symbols-outlined">settings</span>
         </button>
       </div>
-      <div class="last_update">
-        <span></span>
+      <div>
+        <label id="lastUpdate" for="refresh"></label>
       </div>
       <div>
-        <button id="refresh" disabled>
+        <button id="refresh" class="iconButton">
           <span class="material-symbols-outlined">refresh</span>
         </button>
       </div>
@@ -42,41 +51,41 @@
 
   <div class="settings">
     <div>
-      <div>
+      <div class="close">
         <button class="settings_close">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
-      <div>
-        <div class="icon_label">
+      <div class="switchLanguage">
+        <div>
           <span class="material-symbols-outlined">translate</span>
-          <span>Language of stops</span>
+          <span class="title"></span>
         </div>
-        <button id="lang" disabled>
-          <span>English</span>
+        <button id="switchLanguage">
+          <span></span>
         </button>
       </div>
-      <div>
-        <div class="icon_label">
+      <div class="toggleScheduledDepartures">
+        <div>
           <span class="material-symbols-outlined">calendar_today</span>
-          <span>Scheduled departures</span>
+          <span class="title"></span>
         </div>
-        <button id="show_scheduled" disabled>
-          <span>Visible</span>
+        <button id="toggleScheduledDepartures">
+          <span></span>
         </button>
       </div>
-      <div>
-        <div class="icon_label">
+      <div class="switchRefreshInterval">
+        <div>
           <span class="material-symbols-outlined">autorenew</span>
-          <span>Refresh automatically</span>
+          <span class="title"></span>
         </div>
-        <select id="auto_refresh">
-          <option value="0">Disabled</option>
-          <option value="5">5 seconds</option>
-          <option value="10">10 seconds</option>
-          <option value="20">20 seconds</option>
-          <option value="30" selected>30 seconds</option>
-          <option value="60">60 seconds</option>
+        <select id="switchRefreshInterval">
+          <option value="0"></option>
+          <option value="5"></option>
+          <option value="10"></option>
+          <option value="20"></option>
+          <option value="30" selected></option>
+          <option value="60"></option>
         </select>
       </div>
     </div>

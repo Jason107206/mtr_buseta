@@ -54,12 +54,20 @@ body {
 
 /* Global */
 
-.icon_label > * {
-  vertical-align: middle;
+.iconButton {
+  background: #555;
+  border: none;
+  border-radius: 15px;
+  color: #fff;
+  font-size: 0.85rem;
+  height: 2.25rem;
+  padding: 0.35rem;
+  transition: 0.5s background;
+  width: 2.25rem;
 }
 
-.icon_label > span.material-symbols-outlined {
-  margin-right: 4px;
+.iconButton:active, .iconButton:disabled {
+  background: #ccc;
 }
 
 * {
@@ -109,44 +117,58 @@ button span.material-symbols-outlined {
   border-bottom: 1px solid #999999;
 }
 
-.screen button, .screen input, .screen select {
-  border: none;
-  background: #ffffff;
-}
+/* Section - Search Bar */
 
-.screen input, .screen select {
-  width: 100%;
-  font-size: 0.9rem;
-}
-
-/* Section - Search */
-
-.search, .bottom_bar {
+.searchBar, .bottomBar {
   background: #11254a;
   padding: 15px;
 }
 
-.search div {
-  display: grid;
-  grid-template-columns: 40px 1fr;
+.searchBar div {
   align-items: center;
   border-radius: 15px;
-  background: #555555;
+  display: grid;
+  gap: 10px;
 }
 
-.search div:not(:last-child) {
+.searchBar .iconContainer {
+  background: #006600;
+  border-radius: 15px;
+  height: 2.25rem;
+}
+
+.searchBar span.material-symbols-outlined {
+  color: #fff;
+  text-align: center;
+}
+
+.routeSelection {
+  grid-template-columns: 2.25rem 1fr;
   margin-bottom: 15px;
 }
 
-.search input, .search select {
-  font-size: 0.9rem;
-  font-weight: 500;
+.directionSelection {
+  grid-template-columns: 2.25rem 1fr 2.25rem;
 }
 
-.search span.material-symbols-outlined {
-  display: block;
-  text-align: center;
-  color: #ffffff;
+.directionContainer {
+  background: #fff;
+  display: inline;
+  height: 100%;
+  vertical-align: center;
+}
+
+#route, #direction {
+  background: #fff2e6;
+  border: none;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.35rem;
+}
+
+#direction {
+  min-height: 2.25rem;
 }
 
 /* Section - ETA */
@@ -175,59 +197,56 @@ button span.material-symbols-outlined {
 }
 
 .no_departure {
-  font-size: 0.945rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  color: #333333;
+  color: #ff3333;
 }
 
 .no_departure span.material-symbols-outlined {
   margin: 0px 5px 0px 0px;
-  color: #333333;
 }
 
 .departure > span {
   display: inline-block;
-  font-weight: 500;
 }
 
 .departure > span:not(:last-child) {
   margin: 0px 5px 0px 0px;
 }
 
-.departure:nth-of-type(1) > span:nth-of-type(1) {
-  font-size: 1.15rem;
-}
-
-.departure > span:nth-of-type(1) {
-  font-weight: 700;
-}
-
-.departure:not(:first-of-type) > span:nth-of-type(1) {
-  font-size: 1.0rem;
-  font-weight: 500;
-  color: #333;
-}
-
-.departure > span:nth-of-type(2) {
-  font-size: 0.8825rem;
-  color: #4d4d4d;
-}
-
-.departure > span:nth-of-type(3) {
-  font-size: 0.825rem;
-  color: #595959;
-}
-
-.arriving > span:nth-of-type(1) {
+.arriving > span:first-of-type {
   color: #005ce6;
 }
 
+.departure:first-of-type > span:first-of-type {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.departure:not(:first-of-type) > span:first-of-type {
+  font-size: 1.0rem;
+  font-weight: 500;
+}
+
+.departure > span:nth-of-type(2) {
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.departure > span:nth-of-type(3) {
+  color: #595959;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 .chip {
-  padding: 0px 10px;
   border-radius: 15px;
-  vertical-align: middle;
   color: #ffffff;
   font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0px 10px;
+  vertical-align: middle;
 }
 
 .chip_scheduled {
@@ -240,37 +259,21 @@ button span.material-symbols-outlined {
 
 /* Section - Bottom Bar */
 
-.bottom_bar {
+.bottomBar {
   display: grid;
   grid-template-columns: auto 1fr auto;
 }
 
-.bottom_bar div {
-  display: flex;
+.bottomBar div {
+  display: grid;
   justify-content: center;
   align-items: center;
 }
 
-.bottom_bar div > span {
-  text-align: center;
+#lastUpdate {
+  color: #fff;
   font-weight: 500;
-}
-
-.bottom_bar div > span:not(:last-child) {
-  margin-right: 5px;
-}
-
-.bottom_bar button {
-  width: 2.25rem;
-  background: #555555;
-}
-
-.bottom_bar button:active {
-  background: #a6a6a6;
-}
-
-.bottom_bar span {
-  color: #ffffff;
+  text-align: center;
 }
 
 /* Settings Dialog */
@@ -289,7 +292,7 @@ button span.material-symbols-outlined {
   background: rgba(240, 240, 240, 0.7);
 }
 
-.settings .icon_label {
+.settings > div:not(.close) div {
   margin-bottom: 5px;
 }
 
